@@ -185,7 +185,7 @@
   <!-- 开始界面 -->
   <div class="start-box" id="startBox">
     <h1>老峨山脑筋急转弯</h1>
-    <div class="subtitle">制作：跳跳龙</div> <!-- 新增小标题 -->
+    <div class="subtitle">制作：跳跳龙</div>
     <button id="startBtn">开始答题</button>
   </div>
 
@@ -198,8 +198,9 @@
     <div id="question"></div>
     <input type="text" id="answerInput" placeholder="请输入答案">
     <div class="btn-group">
-      <button id="submitBtn">提交答案</button>
+      <!-- 按钮位置已交换：先显示“跳过”，再显示“提交答案” -->
       <button id="skipBtn">跳过本题</button>
+      <button id="submitBtn">提交答案</button>
     </div>
     <button id="restartBtn">重新开始答题</button>
     <div id="hint"></div>
@@ -260,9 +261,9 @@
       { q: "为什么超人救人要穿紧身衣？", a: "救人要紧", match: ["救人要紧"] },
       { q: "小白加小白，打一动物？", a: "小白兔（two）", match: ["小白兔", "小兔"] },
       { q: "大象的左耳朵长得像什么？", a: "右耳朵", match: ["右耳朵"] },
-      { q: "为什么飞机飞的时候碰不到星星？", a: "星星会闪", match: ["星星会闪", "星星闪"] },
+      { q: "为什么飞机飞的时候碰不到星星？", a: "星星会闪", match: ["星星会闪", "星星闪", "星星在闪"] },
       { q: "十五的月亮多少钱？", a: "十六圆（元）", match: ["十六圆", "16圆", "十六元", "16元"] },
-      { q: "花为什么搞笑？", a: "花的梗多", match: ["花的梗多", "梗多"] },
+      { q: "花为什么搞笑？", a: "花的梗多", match: ["花的梗多", "花梗多", "梗多"] },
       { q: "什么工作令人惊讶？", a: "挖藕（哇哦）", match: ["挖藕"] },
       { q: "4+4+4+4打一种水果？", a: "16（石榴）", match: ["16", "石榴", "十六"] },
       { q: "包子最怕什么？", a: "豆（豆沙包）", match: ["豆", "豆子"] },
@@ -435,22 +436,27 @@
       }
     });
 
-    // 跳过本题逻辑
+    // 跳过本题逻辑（新增二次确认）
     skipBtn.addEventListener('click', () => {
-      skipCount++;
-      // 公布正确答案+提示跳过
-      const correctAns = currentQuestions[currentIndex].a;
-      hintEl.className = "skip";
-      hintEl.textContent = `已跳过本题 ✨ 正确答案：${correctAns}`;
-      // 延迟进入下一题
-      setTimeout(() => {
-        currentIndex++;
-        if (currentIndex >= currentQuestions.length) {
-          showResult(); // 答题结束
-        } else {
-          showQuestion();
-        }
-      }, 1200);
+      // 二次确认弹窗，用户点击“确定”才执行跳过
+      const confirmSkip = confirm("确定要跳过本题吗？跳过将直接显示正确答案并进入下一题哦~");
+      if (confirmSkip) {
+        skipCount++;
+        // 公布正确答案+提示跳过
+        const correctAns = currentQuestions[currentIndex].a;
+        hintEl.className = "skip";
+        hintEl.textContent = `已跳过本题 ✨ 正确答案：${correctAns}`;
+        // 延迟进入下一题
+        setTimeout(() => {
+          currentIndex++;
+          if (currentIndex >= currentQuestions.length) {
+            showResult(); // 答题结束
+          } else {
+            showQuestion();
+          }
+        }, 1200);
+      }
+      // 用户点击“取消”则不执行任何操作
     });
 
     // 展示答题结果
