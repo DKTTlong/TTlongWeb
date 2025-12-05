@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>趣味答题闯关</title>
+  <style>
+    body {
+      font-family: "微软雅黑", sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0 20px;
+      background: #f0f2f5;
+    }
+    .game-box {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    #progress {
+      color: #666;
+      font-size: 0.95em;
+      margin-bottom: 15px;
+    }
+    #question {
+      font-size: 1.3em;
+      padding: 18px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      min-height: 40px;
+    }
+    #answerInput {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1em;
+      margin-bottom: 12px;
+      box-sizing: border-box;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    #submitBtn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 0;
+      border-radius: 8px;
+      font-size: 1.05em;
+      cursor: pointer;
+      flex: 1;
+    }
+    #submitBtn:hover {
+      background: #0069d9;
+    }
+    #skipBtn {
+      background: #ffc107;
+      color: #333;
+      border: none;
+      padding: 12px 0;
+      border-radius: 8px;
+      font-size: 1.05em;
+      cursor: pointer;
+      flex: 1;
+    }
+    #skipBtn:hover {
+      background: #ffb300;
+    }
+    #restartBtn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 0;
+      border-radius: 8px;
+      font-size: 1.05em;
+      cursor: pointer;
+      width: 100%;
+      display: none;
+      margin-top: 10px;
+    }
+    #restartBtn:hover {
+      background: #218838;
+    }
+    #hint {
+      margin-top: 15px;
+      font-size: 1em;
+      font-weight: 500;
+      min-height: 20px;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      display: none;
+    }
+    #result h3 {
+      margin-top: 0;
+      color: #2d3748;
+    }
+    #result p {
+      font-size: 1.1em;
+      margin: 8px 0;
+    }
+    .success {
+      color: #28a745;
+    }
+    .error {
+      color: #dc3545;
+    }
+    .skip {
+      color: #ff8c00;
+    }
+    .score-high {
+      color: #28a745;
+      font-weight: bold;
+    }
+    .score-middle {
+      color: #ffc107;
+      font-weight: bold;
+    }
+    .score-low {
+      color: #dc3545;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-box">
+    <div id="progress"></div>
+    <div id="question"></div>
+    <input type="text" id="answerInput" placeholder="请输入答案">
+    <div class="btn-group">
+      <button id="submitBtn">提交答案</button>
+      <button id="skipBtn">跳过本题</button>
+    </div>
+    <button id="restartBtn">重新开始答题</button>
+    <div id="hint"></div>
+    <!-- 答题结果展示区 -->
+    <div id="result">
+      <h3>📝 答题结果统计</h3>
+      <p>总题数：<span id="totalCount">50</span> 题</p>
+      <p>答对：<span id="correctCount">0</span> 题</p>
+      <p>答错：<span id="wrongCount">0</span> 题</p>
+      <p>跳过：<span id="skipCount">0</span> 题</p>
+      <p>最终得分：<span id="finalScore">0</span> 分（满分50分）</p>
+      <p id="scoreTips"></p>
+    </div>
+  </div>
+
+  <script>
+    // 完整题库（50道题，新增match字段支持多答案匹配）
+    const questionBank = [
+      { q: "米的妈妈是谁？", a: "花（花生米）", match: ["花"] },
+      { q: "一颗心值多少钱？", a: "一亿（一心一意）", match: ["一亿", "1亿"] },
+      { q: "身份证掉了怎么办？", a: "捡起来", match: ["捡起来"] },
+      { q: "什么虫打灯笼？", a: "萤火虫", match: ["萤火虫"] },
+      { q: "什么线可以吃？", a: "米线", match: ["米线"] },
+      { q: "什么动物贴在墙上？", a: "海豹（海报）", match: ["海豹", "海报"] },
+      { q: "哪一种竹子不长在土里？", a: "爆竹", match: ["爆竹"] },
+      { q: "把8分成两半是多少？", a: "0", match: ["0", "零"] },
+      { q: "什么锅可以吃？", a: "火锅", match: ["火锅"] },
+      { q: "什么花不能摸？", a: "火花", match: ["火花"] },
+      { q: "为什么青蛙跳的比树高？", a: "因为树不会跳", match: ["树不会跳", "因为树不会跳"] },
+      { q: "什么水不能喝？", a: "薪水", match: ["薪水"] },
+      { q: "什么东西越冷越爱出来？", a: "鼻涕", match: ["鼻涕"] },
+      { q: "什么球会自己长大？", a: "仙人球", match: ["仙人球"] },
+      { q: "什么蛋中看不中吃？", a: "脸蛋", match: ["脸蛋"] },
+      { q: "什么鱼不能吃？", a: "木鱼", match: ["木鱼"] },
+      { q: "新华字典有几个字？", a: "四个字", match: ["四个字", "4个字"] },
+      { q: "什么球不能玩？", a: "地球", match: ["地球"] },
+      { q: "历史上什么人跑得最快？", a: "曹操（说曹操曹操到）", match: ["曹操"] },
+      { q: "天的女儿叫什么？", a: "丽质（天生丽质）", match: ["丽质"] },
+      { q: "天的儿子叫什么？", a: "我材（天生我材）", match: ["我材"] },
+      { q: "风的孩子叫什么？", a: "水起（风生水起）", match: ["水起"] },
+      { q: "什么鱼最聪明？", a: "鲸鱼（精）", match: ["鲸鱼", "鲸"] },
+      { q: "什么狗不咬人？", a: "热狗", match: ["热狗"] },
+      { q: "金木水火土谁腿最长？", a: "火（火腿肠）", match: ["火"] },
+      { q: "一斤棉花和一斤铁那个更重？", a: "一样重", match: ["一样重", "一样"] },
+      { q: "什么狼不吃羊？", a: "黄鼠狼", match: ["黄鼠狼"] },
+      { q: "什么瓜不能吃？", a: "傻瓜", match: ["傻瓜"] },
+      { q: "什么奶不能喝？", a: "洗面奶", match: ["洗面奶"] },
+      { q: "什么鞋不好穿？", a: "小鞋", match: ["小鞋"] },
+      { q: "什么布不能做衣服？", a: "瀑布", match: ["瀑布"] },
+      { q: "什么东西天越热，它爬得越高？", a: "温度计", match: ["温度计"] },
+      { q: "用什么拖地最干净？", a: "用力", match: ["用力"] },
+      { q: "什么面不能吃？", a: "画面", match: ["画面"] },
+      { q: "用西瓜和椰子打头，哪个比较疼？", a: "头", match: ["头"] },
+      { q: "什么猪没有嘴？", a: "珍珠", match: ["珍珠"] },
+      { q: "什么人一举成名？", a: "举重冠军", match: ["举重冠军"] },
+      { q: "什么车不能载人载物？", a: "风车", match: ["风车"] },
+      { q: "为什么超人救人要穿紧身衣？", a: "救人要紧", match: ["救人要紧"] },
+      { q: "小白加小白，打一动物？", a: "小白兔（two）", match: ["小白兔", "小兔"] },
+      { q: "大象的左耳朵长得像什么？", a: "右耳朵", match: ["右耳朵"] },
+      { q: "为什么飞机飞的时候碰不到星星？", a: "星星会闪", match: ["星星会闪", "星星闪"] },
+      { q: "十五的月亮多少钱？", a: "十六圆（元）", match: ["十六圆", "16圆", "十六元", "16元"] },
+      { q: "花为什么搞笑？", a: "花的梗多", match: ["花的梗多", "梗多"] },
+      { q: "什么工作令人惊讶？", a: "挖藕（哇哦）", match: ["挖藕"] },
+      { q: "4+4+4+4打一种水果？", a: "16（石榴）", match: ["16", "石榴", "十六"] },
+      { q: "包子最怕什么？", a: "豆（杀）沙包", match: ["豆", "豆子"] },
+      { q: "什么鱼最白痴？", a: "鲨（傻）鱼", match: ["鲨鱼", "鲨"] },
+      { q: "黄豆年轻时候叫什么？", a: "青春豆", match: ["青春豆", "青春痘"] },
+      { q: "2和4之间是什么？", a: "和", match: ["和"] }
+    ];
+
+    // 元素获取
+    const questionEl = document.getElementById('question');
+    const progressEl = document.getElementById('progress');
+    const inputEl = document.getElementById('answerInput');
+    const hintEl = document.getElementById('hint');
+    const submitBtn = document.getElementById('submitBtn');
+    const skipBtn = document.getElementById('skipBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const resultEl = document.getElementById('result');
+    const correctCountEl = document.getElementById('correctCount');
+    const wrongCountEl = document.getElementById('wrongCount');
+    const skipCountEl = document.getElementById('skipCount');
+    const finalScoreEl = document.getElementById('finalScore');
+    const scoreTipsEl = document.getElementById('scoreTips');
+
+    // 全局变量
+    let currentQuestions, currentIndex;
+    let correctCount = 0, wrongCount = 0, skipCount = 0;
+
+    // 答案标准化函数（处理数字/中文、元/圆、空格等）
+    function normalizeAnswer(str) {
+      if (!str) return '';
+      // 1. 去除空格、转小写
+      let normalized = str.trim().toLowerCase();
+      // 2. 统一“圆”为“元”
+      normalized = normalized.replace(/圆/g, '元');
+      // 3. 常见数字转中文（反向也兼容）
+      const numMap = {
+        '0': '零',
+        '1': '一',
+        '8': '八',
+        '16': '十六',
+        '4': '四',
+        '1亿': '一亿'
+      };
+      // 替换数字为中文（保证匹配一致性）
+      for (const [num, cn] of Object.entries(numMap)) {
+        if (normalized.includes(num)) {
+          normalized = normalized.replace(num, cn);
+        }
+      }
+      return normalized;
+    }
+
+    // 随机打乱整个题库（50道题）
+    function get50RandomQuestions() {
+      return [...questionBank].sort(() => Math.random() - 0.5);
+    }
+
+    // 初始化游戏
+    function initGame() {
+      // 重置数据
+      currentQuestions = get50RandomQuestions();
+      currentIndex = 0;
+      correctCount = 0;
+      wrongCount = 0;
+      skipCount = 0;
+
+      // 重置界面
+      inputEl.style.display = "block";
+      submitBtn.style.display = "block";
+      skipBtn.style.display = "block";
+      restartBtn.style.display = "none";
+      resultEl.style.display = "none";
+      hintEl.textContent = "";
+
+      // 显示第一题
+      showQuestion();
+    }
+
+    // 显示当前题目
+    function showQuestion() {
+      progressEl.textContent = `第 ${currentIndex + 1}/50 题`;
+      questionEl.textContent = currentQuestions[currentIndex].q;
+      hintEl.textContent = "";
+      inputEl.value = ""; // 仅切换题目时清空，答错不清空
+    }
+
+    // 提交答案逻辑（核心优化：人性化答案匹配）
+    submitBtn.addEventListener('click', () => {
+      const userAns = inputEl.value.trim();
+      if (!userAns) {
+        hintEl.className = "error";
+        hintEl.textContent = "请先输入答案再提交哦！";
+        return;
+      }
+
+      // 标准化用户输入和正确答案
+      const normalizedUserAns = normalizeAnswer(userAns);
+      const currentQ = currentQuestions[currentIndex];
+      const normalizedCorrectMatches = currentQ.match.map(item => normalizeAnswer(item));
+
+      // 判断是否匹配任一正确答案
+      if (normalizedCorrectMatches.includes(normalizedUserAns)) {
+        // 答对：加分+提示+进入下一题
+        correctCount++;
+        hintEl.className = "success";
+        hintEl.textContent = "答对啦！真聪明~";
+        // 延迟切换下一题，让用户看到反馈
+        setTimeout(() => {
+          currentIndex++;
+          if (currentIndex >= currentQuestions.length) {
+            showResult(); // 答题结束
+          } else {
+            showQuestion();
+          }
+        }, 800);
+      } else {
+        // 答错：仅提示错误，不清空答案、不换题
+        wrongCount++; 
+        hintEl.className = "error";
+        hintEl.textContent = "答错啦，再想想~";
+      }
+    });
+
+    // 跳过本题逻辑
+    skipBtn.addEventListener('click', () => {
+      skipCount++;
+      // 公布正确答案+提示跳过
+      const correctAns = currentQuestions[currentIndex].a;
+      hintEl.className = "skip";
+      hintEl.textContent = `已跳过本题 ✨ 正确答案：${correctAns}`;
+      // 延迟进入下一题
+      setTimeout(() => {
+        currentIndex++;
+        if (currentIndex >= currentQuestions.length) {
+          showResult(); // 答题结束
+        } else {
+          showQuestion();
+        }
+      }, 1200);
+    });
+
+    // 展示答题结果
+    function showResult() {
+      // 隐藏答题区，显示结果和重新开始按钮
+      inputEl.style.display = "none";
+      submitBtn.style.display = "none";
+      skipBtn.style.display = "none";
+      restartBtn.style.display = "block";
+      resultEl.style.display = "block";
+
+      // 计算得分（每题1分，仅答对得分）
+      const finalScore = correctCount;
+      
+      // 更新统计数据
+      correctCountEl.textContent = correctCount;
+      wrongCountEl.textContent = wrongCount;
+      skipCountEl.textContent = skipCount;
+      finalScoreEl.textContent = finalScore;
+
+      // 得分评语
+      if (finalScore >= 40) {
+        finalScoreEl.className = "score-high";
+        scoreTipsEl.textContent = "🎉 太厉害啦！你是答题小能手～";
+      } else if (finalScore >= 20) {
+        finalScoreEl.className = "score-middle";
+        scoreTipsEl.textContent = "👍 表现不错，继续加油！";
+      } else {
+        finalScoreEl.className = "score-low";
+        scoreTipsEl.textContent = "💪 下次再努力，多试试就会啦！";
+      }
+
+      // 更新进度提示
+      progressEl.textContent = "答题结束！";
+    }
+
+    // 重新开始答题
+    restartBtn.addEventListener('click', initGame);
+
+    // 首次初始化
+    initGame();
+  </script>
+</body>
+</html>
