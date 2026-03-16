@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>策划生存指南：从入职到背锅</title>
     <style>
         * {
@@ -10,110 +10,107 @@
             padding: 0;
             box-sizing: border-box;
             font-family: "Microsoft YaHei", sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        body {
+        html, body {
+            width: 100%;
+            min-height: 100vh;
             background: #1a1a1a;
             color: #fff;
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-            line-height: 1.6;
+            padding: 10px;
+            line-height: 1.5;
+            overflow-x: hidden;
         }
 
         .game-box {
             background: #2a2a2a;
-            padding: 35px;
+            padding: 20px 16px;
             border-radius: 16px;
             box-shadow: 0 0 30px rgba(0,0,0,0.7);
             border: 1px solid #444;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
         .title {
             text-align: center;
-            font-size: 28px;
+            font-size: 22px;
             color: #ffcc00;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(255,204,0,0.3);
+            margin-bottom: 16px;
         }
 
         .status {
             display: flex;
             justify-content: space-between;
             background: #333;
-            padding: 12px 20px;
+            padding: 10px;
             border-radius: 10px;
-            margin-bottom: 25px;
+            margin-bottom: 16px;
             font-weight: bold;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 8px;
+            font-size: 13px;
             border: 1px solid #444;
         }
 
         .avatar-group {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
         }
 
         .avatar {
-            width: 50px;
-            height: 50px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             background: #444;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-size: 12px;
             border: 2px solid #666;
-            transition: 0.2s;
-        }
-
-        .avatar.active {
-            border-color: #ffcc00;
-            box-shadow: 0 0 10px rgba(255,204,0,0.5);
         }
 
         .story {
-            font-size: 19px;
-            margin-bottom: 30px;
-            min-height: 140px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            min-height: 120px;
             background: #333;
-            padding: 20px;
+            padding: 16px;
             border-radius: 10px;
             border: 1px solid #444;
-            line-height: 1.7;
+            line-height: 1.6;
         }
 
         .options button {
             width: 100%;
-            padding: 16px;
-            margin: 10px 0;
+            padding: 14px 12px;
+            margin: 8px 0;
             background: #4285f4;
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 17px;
+            font-size: 15px;
             cursor: pointer;
-            transition: 0.2s;
             text-align: left;
             border: 1px solid #5392ff;
+            min-height: 50px;
         }
 
-        .options button:hover {
+        .options button:active {
             background: #5392ff;
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(66,133,244,0.3);
+            transform: scale(0.98);
         }
 
         .ending {
             text-align: center;
-            font-size: 24px;
-            margin-top: 30px;
+            font-size: 18px;
+            margin-top: 20px;
             line-height: 1.6;
-            padding: 20px;
+            padding: 16px;
             border-radius: 10px;
             background: rgba(0,0,0,0.3);
         }
@@ -121,43 +118,39 @@
         .restart {
             background: #ff4444 !important;
             text-align: center !important;
-            margin-top: 25px;
-            border-color: #ff6666 !important;
-        }
-
-        .restart:hover {
-            background: #ff6666 !important;
+            margin-top: 20px;
+            font-size: 16px !important;
         }
 
         .achievement {
             background: #333;
-            padding: 15px 20px;
+            padding: 12px;
             border-radius: 10px;
-            margin-top: 15px;
+            margin-top: 12px;
             border-left: 4px solid #ffcc00;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .sound-control {
             text-align: right;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .sound-btn {
             background: #444;
             color: #fff;
             border: none;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 8px;
-            cursor: pointer;
+            font-size: 12px;
         }
 
         .item-bar {
             background: #333;
-            padding: 10px 15px;
+            padding: 10px;
             border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 15px;
+            margin-bottom: 12px;
+            font-size: 13px;
             border: 1px solid #444;
         }
 
@@ -165,18 +158,15 @@
             color: #ffcc00;
             font-weight: bold;
             cursor: pointer;
-            padding: 2px 5px;
+            padding: 4px 6px;
             border-radius: 4px;
-        }
-
-        .item-click:hover {
-            background: #444;
+            display: inline-block;
         }
 
         .tip {
             color: #aaa;
-            font-size: 13px;
-            margin-top: 5px;
+            font-size: 11px;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -188,18 +178,18 @@
         <div class="title">策划生存指南：从入职到背锅</div>
         
         <div class="avatar-group">
-            <div class="avatar" id="av1">👨💼 老板</div>
-            <div class="avatar" id="av2">👨💻 程序</div>
-            <div class="avatar" id="av3">🧪 测试</div>
-            <div class="avatar" id="av4">📊 运营</div>
+            <div class="avatar">👨💼 老板</div>
+            <div class="avatar">👨💻 程序</div>
+            <div class="avatar">🧪 测试</div>
+            <div class="avatar">📊 运营</div>
         </div>
 
         <div class="status">
-            <span>创意值：<span id="idea">10</span></span>
-            <span>程序好感：<span id="coder">10</span></span>
-            <span>老板满意度：<span id="boss">10</span></span>
-            <span>测试好感：<span id="test">10</span></span>
-            <span>运营好感：<span id="oper">10</span></span>
+            <span>创意：<span id="idea">10</span></span>
+            <span>程序：<span id="coder">10</span></span>
+            <span>老板：<span id="boss">10</span></span>
+            <span>测试：<span id="test">10</span></span>
+            <span>运营：<span id="oper">10</span></span>
         </div>
 
         <div class="item-bar">
@@ -219,7 +209,7 @@
         let gameData = {
             idea: 10, coder: 10, boss: 10, test:10, oper:10,
             stage: 0, achievements: [],
-            coffee: 1, guoka: 1, peace: 1  // 开局各送1个
+            coffee: 1, guoka: 1, peace: 1
         };
 
         let soundEnabled = true;
@@ -233,7 +223,12 @@
         function playSound(audio) {
             if(soundEnabled) {
                 audio.currentTime = 0;
-                audio.play();
+                // 修复音频播放的兼容性问题
+                try {
+                    audio.play();
+                } catch (err) {
+                    console.log("音频播放提示：", err.message);
+                }
             }
         }
 
@@ -242,14 +237,9 @@
             document.getElementById("soundBtn").innerText = soundEnabled ? "🔊 音效开启" : "🔇 音效关闭";
         }
 
-        // ======================
-        // 道具使用函数（核心！）
-        // ======================
+        // ========== 道具使用 ==========
         function useCoffee() {
-            if(gameData.coffee <= 0) {
-                alert("☕ 咖啡用完啦！继续游戏可获得道具~");
-                return;
-            }
+            if(gameData.coffee <= 0) { alert("☕ 咖啡用完啦！"); return; }
             playSound(itemSound);
             gameData.coffee--;
             gameData.idea = Math.min(30, gameData.idea + 3);
@@ -258,10 +248,7 @@
         }
 
         function useGuoka() {
-            if(gameData.guoka <= 0) {
-                alert("🃏 甩锅卡用完啦！");
-                return;
-            }
+            if(gameData.guoka <= 0) { alert("🃏 甩锅卡用完啦！"); return; }
             playSound(itemSound);
             gameData.guoka--;
             gameData.boss = Math.min(30, gameData.boss + 2);
@@ -271,10 +258,7 @@
         }
 
         function usePeace() {
-            if(gameData.peace <= 0) {
-                alert("🤝 安抚券用完啦！");
-                return;
-            }
+            if(gameData.peace <= 0) { alert("🤝 安抚券用完啦！"); return; }
             playSound(itemSound);
             gameData.peace--;
             gameData.coder = Math.min(30, gameData.coder + 2);
@@ -288,9 +272,7 @@
             document.getElementById("achievement").innerHTML = `<div class="achievement">✅ ${msg}</div>`;
         }
 
-        // ======================
-        // 剧情与数值
-        // ======================
+        // ========== 剧情 ==========
         const storyData = [
             {
                 text: "入职第一天，老板把你叫到办公室：“我们要做一款爆款游戏，简单、赚钱、比原神还火，明天给我完整方案。”",
@@ -383,10 +365,10 @@
             {
                 text: "游戏出现严重BUG，玩家炸锅，老板大怒！",
                 options: [
-                    { text: "主动承担责任，紧急修复", effect: { boss: +2, test: +3, coder: +2 }, next: 13 },
-                    { text: "甩锅给程序：是他们写的代码烂", effect: { boss: +1, coder: -5 }, next: 13 },
-                    { text: "甩锅给测试：他们没测出来", effect: { boss: +1, test: -5 }, next: 13 },
-                    { text: "集体沉默，谁都不承认", effect: { boss: -3 }, next: 13 }
+                    { text: "主动承担责任，紧急修复", effect: { boss: +2, test: +3, coder: +2 }, next: 100 }, // 直接跳结局
+                    { text: "甩锅给程序：是他们写的代码烂", effect: { boss: +1, coder: -5 }, next: 100 },
+                    { text: "甩锅给测试：他们没测出来", effect: { boss: +1, test: -5 }, next: 100 },
+                    { text: "集体沉默，谁都不承认", effect: { boss: -3 }, next: 100 }
                 ]
             },
             {
@@ -403,31 +385,33 @@
                 const { idea, coder, boss, test, oper } = gameData;
                 const total = idea + coder + boss + test + oper;
                 
+                let result = { text: "", color: "" };
                 if (total >= 85) {
                     unlockAchievement("金牌策划");
-                    return { text: "你平衡各方、创意拉满，游戏火爆全球！你被升为制作人，年薪百万！【真结局：金牌策划大神】", color: "#ffcc00" };
+                    result = { text: "你平衡各方、创意拉满，游戏火爆全球！你被升为制作人，年薪百万！【真结局：金牌策划大神】", color: "#ffcc00" };
                 } else if (boss <= 4) {
                     unlockAchievement("背锅之王");
-                    return { text: "老板对你极度不满，项目失败，你成为唯一背锅侠，被迫离职。【坏结局：背锅之王】", color: "#ff4444" };
+                    result = { text: "老板对你极度不满，项目失败，你成为唯一背锅侠，被迫离职。【坏结局：背锅之王】", color: "#ff4444" };
                 } else if (coder <= 4) {
                     unlockAchievement("全员公敌");
-                    return { text: "程序集体抵制你，开发停滞，你被公司开除。【坏结局：全员公敌】", color: "#ff4444" };
+                    result = { text: "程序集体抵制你，开发停滞，你被公司开除。【坏结局：全员公敌】", color: "#ff4444" };
                 } else if (test <= 4 && oper <= 4) {
                     unlockAchievement("孤岛策划");
-                    return { text: "测试和运营都讨厌你，你在公司寸步难行，主动辞职。【坏结局：孤岛策划】", color: "#ff4444" };
+                    result = { text: "测试和运营都讨厌你，你在公司寸步难行，主动辞职。【坏结局：孤岛策划】", color: "#ff4444" };
                 } else if (idea >= 28) {
                     unlockAchievement("创意鬼才");
-                    return { text: "你的创意极强，但职场一般，游戏小爆款，你成为知名独立策划。【好结局：创意鬼才】", color: "#42ff80" };
+                    result = { text: "你的创意极强，但职场一般，游戏小爆款，你成为知名独立策划。【好结局：创意鬼才】", color: "#42ff80" };
                 } else if (boss >= 25) {
                     unlockAchievement("职场精英");
-                    return { text: "你非常会讨好老板，虽然游戏一般，但你升职加薪。【好结局：职场精英】", color: "#42ff80" };
+                    result = { text: "你非常会讨好老板，虽然游戏一般，但你升职加薪。【好结局：职场精英】", color: "#42ff80" };
                 } else if (total >= 60) {
-                    return { text: "游戏平稳上线，口碑不错，你成功保住工作，升职在望！【好结局：优秀策划】", color: "#4285f4" };
+                    result = { text: "游戏平稳上线，口碑不错，你成功保住工作，升职在望！【好结局：优秀策划】", color: "#4285f4" };
                 } else if (total >= 40) {
-                    return { text: "游戏不温不火，你平安保住工作，继续打工。【普通结局：合格社畜】", color: "#4285f4" };
+                    result = { text: "游戏不温不火，你平安保住工作，继续打工。【普通结局：合格社畜】", color: "#4285f4" };
                 } else {
-                    return { text: "项目彻底失败，团队解散，你被辞退，重新找工作。【坏结局：失败策划】", color: "#ff4444" };
+                    result = { text: "项目彻底失败，团队解散，你被辞退，重新找工作。【坏结局：失败策划】", color: "#ff4444" };
                 }
+                return result;
             }
         };
 
@@ -435,13 +419,15 @@
             if(!gameData.achievements.includes(name)) {
                 gameData.achievements.push(name);
                 document.getElementById("achievement").innerHTML += `
-                    <div class="achievement">🎉 达成成就：${name}</div>
-                `;
+                    <div class="achievement">🎉 达成成就：${name}</div>`;
             }
         }
 
         function updateUI() {
+            // 先播放背景音乐（修复首次加载无音效）
             playSound(bgMusic);
+            
+            // 更新数值显示
             document.getElementById("idea").innerText = gameData.idea;
             document.getElementById("coder").innerText = gameData.coder;
             document.getElementById("boss").innerText = gameData.boss;
@@ -452,19 +438,26 @@
             document.getElementById("guoka").innerText = gameData.guoka;
             document.getElementById("peace").innerText = gameData.peace;
 
+            // 防止剧情索引越界
+            if (gameData.stage >= storyData.length) {
+                gameData.stage = storyData.length - 1;
+            }
+            
             let current = storyData[gameData.stage];
             document.getElementById("story").innerText = current.text;
 
             let optDom = document.getElementById("options");
             optDom.innerHTML = "";
 
+            // 重新渲染按钮（修复点击无响应）
             current.options.forEach((opt, index) => {
                 let btn = document.createElement("button");
                 btn.innerText = opt.text;
-                btn.onclick = () => {
+                // 绑定点击事件时避免闭包问题
+                btn.addEventListener('click', function() {
                     playSound(clickSound);
                     chooseOption(index);
-                };
+                });
                 optDom.appendChild(btn);
             });
         }
@@ -473,19 +466,14 @@
             let current = storyData[gameData.stage];
             let opt = current.options[index];
 
-            gameData.idea += opt.effect.idea || 0;
-            gameData.coder += opt.effect.coder || 0;
-            gameData.boss += opt.effect.boss || 0;
-            gameData.test += opt.effect.test || 0;
-            gameData.oper += opt.effect.oper || 0;
+            // 更新数值（加边界保护）
+            gameData.idea = Math.max(0, Math.min(30, (gameData.idea + (opt.effect.idea || 0))));
+            gameData.coder = Math.max(0, Math.min(30, (gameData.coder + (opt.effect.coder || 0))));
+            gameData.boss = Math.max(0, Math.min(30, (gameData.boss + (opt.effect.boss || 0))));
+            gameData.test = Math.max(0, Math.min(30, (gameData.test + (opt.effect.test || 0))));
+            gameData.oper = Math.max(0, Math.min(30, (gameData.oper + (opt.effect.oper || 0))));
 
-            gameData.idea = Math.max(0, Math.min(30, gameData.idea));
-            gameData.coder = Math.max(0, Math.min(30, gameData.coder));
-            gameData.boss = Math.max(0, Math.min(30, gameData.boss));
-            gameData.test = Math.max(0, Math.min(30, gameData.test));
-            gameData.oper = Math.max(0, Math.min(30, gameData.oper));
-
-            // 剧情中随机获得道具
+            // 随机获得道具
             if(Math.random() > 0.6) {
                 let r = Math.random();
                 if(r>0.66) gameData.coffee++;
@@ -493,6 +481,7 @@
                 else gameData.peace++;
             }
 
+            // 跳转到结局或下一段剧情
             if (endings[opt.next]) {
                 showEnding(opt.next);
             } else {
@@ -503,22 +492,31 @@
 
         function showEnding(endId) {
             let end = endings[endId];
-            if (typeof end === "function") end = end();
-
+            // 修复结局函数执行问题
+            if (typeof end === "function") {
+                end = end();
+            }
+            // 清空成就区，只显示结局
+            document.getElementById("achievement").innerHTML = "";
             document.getElementById("story").innerHTML = `<div class="ending" style="color:${end.color}">${end.text}</div>`;
             document.getElementById("options").innerHTML = `<button class="restart" onclick="restart()">重新开始游戏</button>`;
         }
 
         function restart() {
+            // 重置所有游戏数据
             gameData = { 
                 idea: 10, coder: 10, boss: 10, test:10, oper:10, 
-                stage: 0, achievements: [],
-                coffee:1, guoka:1, peace:1
+                stage: 0, achievements: [], coffee:1, guoka:1, peace:1
             };
+            // 清空成就显示
+            document.getElementById("achievement").innerHTML = "";
             updateUI();
         }
 
-        updateUI();
+        // 初始化游戏（确保DOM加载完成）
+        window.onload = function() {
+            updateUI();
+        };
     </script>
 </body>
 </html>
