@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 新增移动端必备meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
     <title>策划生存指南：从入职到背锅</title>
     <style>
         * {
@@ -21,6 +25,8 @@
             padding: 10px;
             line-height: 1.5;
             overflow-x: hidden;
+            /* 修复移动端滚动问题 */
+            touch-action: manipulation;
         }
 
         .game-box {
@@ -31,6 +37,8 @@
             border: 1px solid #444;
             max-width: 500px;
             margin: 0 auto;
+            /* 适配手机屏幕 */
+            width: 100%;
         }
 
         .title {
@@ -98,6 +106,15 @@
             text-align: left;
             border: 1px solid #5392ff;
             min-height: 50px;
+            /* 修复移动端点击反馈 */
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        /* 新增移动端按钮点击样式 */
+        .options button:hover, .options button:focus {
+            background: #5392ff;
+            outline: none;
         }
 
         .options button:active {
@@ -143,6 +160,8 @@
             padding: 6px 10px;
             border-radius: 8px;
             font-size: 12px;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
         .item-bar {
@@ -168,23 +187,34 @@
             font-size: 11px;
             margin-top: 4px;
         }
+
+        /* 新增：移动端加载提示 */
+        .loading-tip {
+            text-align: center;
+            color: #ffcc00;
+            padding: 20px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div class="game-box">
-        <div class="sound-control">
-            <button class="sound-btn" onclick="toggleSound()" id="soundBtn">🔊 音效开启</button>
-        </div>
-        <div class="title">策划生存指南：从入职到背锅</div>
+        <!-- 新增：初始加载提示，避免手机端空白 -->
+        <div id="loadingTip" class="loading-tip">点击屏幕开始游戏 🎮</div>
         
-        <div class="avatar-group">
+        <div class="sound-control" style="display: none;" id="soundControl">
+            <button class="sound-btn" onclick="toggleSound()" id="soundBtn">🔇 音效关闭</button>
+        </div>
+        <div class="title" style="display: none;" id="gameTitle">策划生存指南：从入职到背锅</div>
+        
+        <div class="avatar-group" style="display: none;" id="avatarGroup">
             <div class="avatar">👨💼 老板</div>
             <div class="avatar">👨💻 程序</div>
             <div class="avatar">🧪 测试</div>
             <div class="avatar">📊 运营</div>
         </div>
 
-        <div class="status">
+        <div class="status" style="display: none;" id="statusBar">
             <span>创意：<span id="idea">10</span></span>
             <span>程序：<span id="coder">10</span></span>
             <span>老板：<span id="boss">10</span></span>
@@ -192,7 +222,7 @@
             <span>运营：<span id="oper">10</span></span>
         </div>
 
-        <div class="item-bar">
+        <div class="item-bar" style="display: none;" id="itemBar">
             道具（点击使用）：
             <span class="item-click" onclick="useCoffee()">☕咖啡</span> x<span id="coffee">0</span> &nbsp;&nbsp;
             <span class="item-click" onclick="useGuoka()">🃏甩锅卡</span> x<span id="guoka">0</span> &nbsp;&nbsp;
@@ -200,9 +230,9 @@
             <div class="tip">💡 咖啡=创意+3 | 甩锅卡=老板+2 | 安抚券=全员好感+2</div>
         </div>
 
-        <div class="story" id="story"></div>
-        <div class="options" id="options"></div>
-        <div id="achievement"></div>
+        <div class="story" id="story" style="display: none;"></div>
+        <div class="options" id="options" style="display: none;"></div>
+        <div id="achievement" style="display: none;"></div>
     </div>
 
     <script>
@@ -212,29 +242,33 @@
             coffee: 1, guoka: 1, peace: 1
         };
 
-        let soundEnabled = true;
-        let bgMusic = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3");
-        let clickSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3");
-        let itemSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3");
+        let soundEnabled = false; // 默认关闭音效，适配手机端
+        // 移除外部音频链接，避免跨域加载失败
+        let bgMusic = null;
+        let clickSound = null;
+        let itemSound = null;
 
-        bgMusic.loop = true;
-        bgMusic.volume = 0.2;
-
+        // 简化音效播放函数，避免音频加载错误
         function playSound(audio) {
-            if(soundEnabled) {
-                audio.currentTime = 0;
-                // 修复音频播放的兼容性问题
+            if(soundEnabled && audio) {
                 try {
-                    audio.play();
-                } catch (err) {
-                    console.log("音频播放提示：", err.message);
-                }
+                    audio.currentTime = 0;
+                    audio.play().catch(err => {});
+                } catch (err) {}
             }
         }
 
         function toggleSound() {
             soundEnabled = !soundEnabled;
             document.getElementById("soundBtn").innerText = soundEnabled ? "🔊 音效开启" : "🔇 音效关闭";
+            // 开启音效时才初始化音频（避免首次加载卡住）
+            if(soundEnabled && !bgMusic) {
+                bgMusic = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3");
+                clickSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3");
+                itemSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3");
+                bgMusic.loop = true;
+                bgMusic.volume = 0.2;
+            }
         }
 
         // ========== 道具使用 ==========
@@ -365,7 +399,7 @@
             {
                 text: "游戏出现严重BUG，玩家炸锅，老板大怒！",
                 options: [
-                    { text: "主动承担责任，紧急修复", effect: { boss: +2, test: +3, coder: +2 }, next: 100 }, // 直接跳结局
+                    { text: "主动承担责任，紧急修复", effect: { boss: +2, test: +3, coder: +2 }, next: 100 },
                     { text: "甩锅给程序：是他们写的代码烂", effect: { boss: +1, coder: -5 }, next: 100 },
                     { text: "甩锅给测试：他们没测出来", effect: { boss: +1, test: -5 }, next: 100 },
                     { text: "集体沉默，谁都不承认", effect: { boss: -3 }, next: 100 }
@@ -424,9 +458,6 @@
         }
 
         function updateUI() {
-            // 先播放背景音乐（修复首次加载无音效）
-            playSound(bgMusic);
-            
             // 更新数值显示
             document.getElementById("idea").innerText = gameData.idea;
             document.getElementById("coder").innerText = gameData.coder;
@@ -449,11 +480,19 @@
             let optDom = document.getElementById("options");
             optDom.innerHTML = "";
 
-            // 重新渲染按钮（修复点击无响应）
+            // 重新渲染按钮（修复移动端点击无响应）
             current.options.forEach((opt, index) => {
                 let btn = document.createElement("button");
                 btn.innerText = opt.text;
-                // 绑定点击事件时避免闭包问题
+                // 绑定移动端兼容的点击事件
+                btn.addEventListener('touchstart', function() {
+                    this.style.background = "#5392ff";
+                });
+                btn.addEventListener('touchend', function() {
+                    this.style.background = "#4285f4";
+                    playSound(clickSound);
+                    chooseOption(index);
+                });
                 btn.addEventListener('click', function() {
                     playSound(clickSound);
                     chooseOption(index);
@@ -492,31 +531,55 @@
 
         function showEnding(endId) {
             let end = endings[endId];
-            // 修复结局函数执行问题
             if (typeof end === "function") {
                 end = end();
             }
-            // 清空成就区，只显示结局
             document.getElementById("achievement").innerHTML = "";
             document.getElementById("story").innerHTML = `<div class="ending" style="color:${end.color}">${end.text}</div>`;
             document.getElementById("options").innerHTML = `<button class="restart" onclick="restart()">重新开始游戏</button>`;
+            // 修复重新开始按钮的移动端点击
+            document.querySelector('.restart').addEventListener('touchend', function() {
+                restart();
+            });
         }
 
         function restart() {
-            // 重置所有游戏数据
             gameData = { 
                 idea: 10, coder: 10, boss: 10, test:10, oper:10, 
                 stage: 0, achievements: [], coffee:1, guoka:1, peace:1
             };
-            // 清空成就显示
             document.getElementById("achievement").innerHTML = "";
             updateUI();
         }
 
-        // 初始化游戏（确保DOM加载完成）
-        window.onload = function() {
+        // 核心：手机端手动触发游戏开始，避免自动加载卡住
+        function startGame() {
+            // 隐藏加载提示，显示游戏内容
+            document.getElementById("loadingTip").style.display = "none";
+            document.getElementById("soundControl").style.display = "block";
+            document.getElementById("gameTitle").style.display = "block";
+            document.getElementById("avatarGroup").style.display = "flex";
+            document.getElementById("statusBar").style.display = "flex";
+            document.getElementById("itemBar").style.display = "block";
+            document.getElementById("story").style.display = "block";
+            document.getElementById("options").style.display = "block";
+            document.getElementById("achievement").style.display = "block";
+            
+            // 初始化游戏
             updateUI();
-        };
+        }
+
+        // 绑定屏幕点击开始游戏（适配手机端）
+        document.addEventListener('click', function() {
+            if(document.getElementById("loadingTip").style.display !== "none") {
+                startGame();
+            }
+        });
+        document.addEventListener('touchend', function() {
+            if(document.getElementById("loadingTip").style.display !== "none") {
+                startGame();
+            }
+        });
     </script>
 </body>
 </html>
