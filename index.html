@@ -1,520 +1,499 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>老峨山脑筋急转弯</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: "微软雅黑", sans-serif;
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 0 20px;
-      background: #f0f2f5;
-    }
-    /* 开始界面样式 */
-    .start-box {
-      background: white;
-      padding: 40px 25px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-      text-align: center;
-    }
-    .start-box h1 {
-      color: #2d3748;
-      font-size: 1.8em;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-    .start-box .subtitle {
-      color: #666;
-      font-size: 1.2em;
-      margin-bottom: 30px;
-      font-weight: 500;
-    }
-    #startBtn {
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 15px 40px;
-      border-radius: 8px;
-      font-size: 1.2em;
-      cursor: pointer;
-      width: 100%;
-    }
-    #startBtn:hover {
-      background: #0069d9;
-    }
-    /* 答题界面样式 */
-    .game-box {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-      display: none; /* 初始隐藏 */
-    }
-    #progress {
-      color: #666;
-      font-size: 0.95em;
-      margin-bottom: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    #timer {
-      font-weight: 500;
-      color: #007bff;
-    }
-    #question {
-      font-size: 1.3em;
-      padding: 18px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      min-height: 40px;
-    }
-    #answerInput {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 1em;
-      margin-bottom: 12px;
-      box-sizing: border-box;
-    }
-    .btn-group {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    #submitBtn {
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 12px 0;
-      border-radius: 8px;
-      font-size: 1.05em;
-      cursor: pointer;
-      flex: 1;
-    }
-    #submitBtn:hover {
-      background: #0069d9;
-    }
-    #skipBtn {
-      background: #ffc107;
-      color: #333;
-      border: none;
-      padding: 12px 0;
-      border-radius: 8px;
-      font-size: 1.05em;
-      cursor: pointer;
-      flex: 1;
-    }
-    #skipBtn:hover {
-      background: #ffb300;
-    }
-    #restartBtn {
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 12px 0;
-      border-radius: 8px;
-      font-size: 1.05em;
-      cursor: pointer;
-      width: 100%;
-      display: none;
-      margin-top: 10px;
-    }
-    #restartBtn:hover {
-      background: #218838;
-    }
-    #hint {
-      margin-top: 15px;
-      font-size: 1em;
-      font-weight: 500;
-      min-height: 20px;
-    }
-    #result {
-      margin-top: 20px;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      display: none;
-    }
-    #result h3 {
-      margin-top: 0;
-      color: #2d3748;
-    }
-    #result p {
-      font-size: 1.1em;
-      margin: 8px 0;
-    }
-    .success {
-      color: #28a745;
-    }
-    .error {
-      color: #dc3545;
-    }
-    .skip {
-      color: #ff8c00;
-    }
-    .score-high {
-      color: #28a745;
-      font-weight: bold;
-    }
-    .score-middle {
-      color: #ffc107;
-      font-weight: bold;
-    }
-    .score-low {
-      color: #dc3545;
-      font-weight: bold;
-    }
-    #totalTime {
-      color: #007bff;
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>策划生存指南：从入职到背锅</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --bg-color: #ecf0f1;
+            --card-bg: #fff;
+            --text-color: #34495e;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-size: 16px;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 640px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 85vh; /* 固定高度，内容滚动 */
+            position: relative;
+        }
+
+        /* 头部状态栏 */
+        header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px;
+            flex-shrink: 0;
+        }
+
+        h1 { margin: 0 0 15px 0; font-size: 1.1rem; text-align: center; letter-spacing: 1px; }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            opacity: 0.9;
+        }
+
+        .stat-bar {
+            width: 100%;
+            height: 5px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 游戏内容区 */
+        main {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        #story-text {
+            line-height: 1.8;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            font-size: 1rem;
+            white-space: pre-wrap; /* 保留换行 */
+        }
+
+        .highlight { color: #e67e22; font-weight: bold; }
+        .danger-text { color: #c0392b; font-weight: bold; }
+
+        /* 事件日志 */
+        #event-log {
+            min-height: 40px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-left: 3px solid #bdc3c7;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            border-radius: 0 4px 4px 0;
+            transition: all 0.3s;
+        }
+
+        /* 选项区 */
+        footer {
+            padding: 20px;
+            background: #fafafa;
+            border-top: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            background: white;
+            border: 2px solid #bdc3c7;
+            padding: 14px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            text-align: left;
+            color: var(--text-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            border-color: var(--primary-color);
+            background: #f8f9f9;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .day-badge {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: #eee;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #666;
+        }
+
+        /* 结局特殊样式 */
+        .ending-box {
+            text-align: center;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+        .ending-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+        .shake { animation: shake 0.3s; }
+    </style>
 </head>
 <body>
-  <!-- 开始界面 -->
-  <div class="start-box" id="startBox">
-    <h1>老峨山脑筋急转弯</h1>
-    <div class="subtitle">制作：跳跳龙</div>
-    <button id="startBtn">开始答题</button>
-  </div>
 
-  <!-- 答题界面 -->
-  <div class="game-box" id="gameBox">
-    <div id="progress">
-      <span id="questionProgress">第 1/50 题</span>
-      <span id="timer">用时：00:00:00</span>
-    </div>
-    <div id="question"></div>
-    <input type="text" id="answerInput" placeholder="请输入答案">
-    <div class="btn-group">
-      <!-- 按钮位置已交换：先显示“跳过”，再显示“提交答案” -->
-      <button id="skipBtn">跳过本题</button>
-      <button id="submitBtn">提交答案</button>
-    </div>
-    <button id="restartBtn">重新开始答题</button>
-    <div id="hint"></div>
-    <!-- 答题结果展示区 -->
-    <div id="result">
-      <h3>📝 答题结果统计</h3>
-      <p>总题数：<span id="totalCount">50</span> 题</p>
-      <p>答对：<span id="correctCount">0</span> 题</p>
-      <p>答错：<span id="wrongCount">0</span> 题</p>
-      <p>跳过：<span id="skipCount">0</span> 题</p>
-      <p>最终得分：<span id="finalScore">0</span> 分（满分50分）</p>
-      <p>总答题用时：<span id="totalTime">00:00:00</span></p>
-      <p id="scoreTips"></p>
-    </div>
-  </div>
+<div id="game-container">
+    <header>
+        <h1>💻 策划生存指南：从入职到背锅</h1>
+        <div class="status-grid">
+            <div class="stat-box">
+                <div class="stat-label"><span>👨‍💼 老板满意度</span><span id="val-boss">50</span></div>
+                <div class="stat-bar"><div class="stat-fill" id="bar-boss" style="width: 50%; background: #3498db;"></div></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label"><span>💻 程序好感度</span><span id="val-dev">50</span></div>
+                <div class="stat-bar"><div class="stat-fill" id="bar-dev" style="width: 50%; background: #9b59b6;"></div></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label"><span>💡 创意值</span><span id="val-idea">60</span></div>
+                <div class="stat-bar"><div class="stat-fill" id="bar-idea" style="width: 60%; background: #f1c40f;"></div></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label"><span>💇 发际线</span><span id="val-hair">100</span></div>
+                <div class="stat-bar"><div class="stat-fill" id="bar-hair" style="width: 100%; background: #2ecc71;"></div></div>
+            </div>
+        </div>
+    </header>
 
-  <script>
-    // 完整题库（50道题，支持多答案匹配）
-    const questionBank = [
-      { q: "米的妈妈是谁？", a: "花（花生米）", match: ["花"] },
-      { q: "一颗心值多少钱？", a: "一亿（一心一意）", match: ["一亿", "1亿"] },
-      { q: "身份证掉了怎么办？", a: "捡起来", match: ["捡起来"] },
-      { q: "什么虫打灯笼？", a: "萤火虫", match: ["萤火虫"] },
-      { q: "什么线可以吃？", a: "米线", match: ["米线"] },
-      { q: "什么动物贴在墙上？", a: "海豹（海报）", match: ["海豹", "海报"] },
-      { q: "哪一种竹子不长在土里？", a: "爆竹", match: ["爆竹"] },
-      { q: "把8分成两半是多少？", a: "0", match: ["0", "零"] },
-      { q: "什么锅可以吃？", a: "火锅", match: ["火锅"] },
-      { q: "什么花不能摸？", a: "火花", match: ["火花"] },
-      { q: "为什么青蛙跳的比树高？", a: "因为树不会跳", match: ["树不会跳", "因为树不会跳"] },
-      { q: "什么水不能喝？", a: "薪水", match: ["薪水"] },
-      { q: "什么东西越冷越爱出来？", a: "鼻涕", match: ["鼻涕"] },
-      { q: "什么球会自己长大？", a: "仙人球", match: ["仙人球"] },
-      { q: "什么蛋中看不中吃？", a: "脸蛋", match: ["脸蛋"] },
-      { q: "什么鱼不能吃？", a: "木鱼", match: ["木鱼"] },
-      { q: "新华字典有几个字？", a: "四个字", match: ["四", "4","四个", "4个","四个字", "4个字"] },
-      { q: "什么球不能玩？", a: "地球", match: ["地球"] },
-      { q: "历史上什么人跑得最快？", a: "曹操（说曹操曹操到）", match: ["曹操"] },
-      { q: "天的女儿叫什么？", a: "丽质（天生丽质）", match: ["丽质"] },
-      { q: "天的儿子叫什么？", a: "我材（天生我材）", match: ["我材"] },
-      { q: "风的孩子叫什么？", a: "水起（风生水起）", match: ["水起"] },
-      { q: "什么鱼最聪明？", a: "鲸鱼（精）", match: ["鲸鱼", "鲸"] },
-      { q: "什么狗不咬人？", a: "热狗", match: ["热狗"] },
-      { q: "金木水火土谁腿最长？", a: "火（火腿肠）", match: ["火"] },
-      { q: "一斤棉花和一斤铁那个更重？", a: "一样重", match: ["一样重", "一样"] },
-      { q: "什么狼不吃羊？", a: "黄鼠狼", match: ["黄鼠狼"] },
-      { q: "什么瓜不能吃？", a: "傻瓜", match: ["傻瓜"] },
-      { q: "什么奶不能喝？", a: "洗面奶", match: ["洗面奶"] },
-      { q: "什么鞋不好穿？", a: "小鞋", match: ["小鞋"] },
-      { q: "什么布不能做衣服？", a: "瀑布", match: ["瀑布"] },
-      { q: "什么东西天越热，它爬得越高？", a: "温度计", match: ["温度计"] },
-      { q: "用什么拖地最干净？", a: "用力", match: ["用力"] },
-      { q: "什么面不能吃？", a: "画面", match: ["画面"] },
-      { q: "用西瓜和椰子打头，哪个比较疼？", a: "头", match: ["头"] },
-      { q: "什么猪没有嘴？", a: "珍珠", match: ["珍珠"] },
-      { q: "什么人一举成名？", a: "举重冠军", match: ["举重冠军"] },
-      { q: "什么车不能载人载物？", a: "风车", match: ["风车"] },
-      { q: "为什么超人救人要穿紧身衣？", a: "救人要紧", match: ["救人要紧"] },
-      { q: "小白加小白，打一动物？", a: "小白兔（two）", match: ["小白兔", "小兔"] },
-      { q: "大象的左耳朵长得像什么？", a: "右耳朵", match: ["右耳朵"] },
-      { q: "为什么飞机飞的时候碰不到星星？", a: "星星会闪", match: ["星星会闪", "星星闪", "星星在闪"] },
-      { q: "十五的月亮多少钱？", a: "十六圆（元）", match: ["十六圆", "16圆", "十六元", "16元"] },
-      { q: "花为什么搞笑？", a: "花的梗多", match: ["花的梗多", "花梗多", "梗多"] },
-      { q: "什么工作令人惊讶？", a: "挖藕（哇哦）", match: ["挖藕"] },
-      { q: "4+4+4+4打一种水果？", a: "16（石榴）", match: ["16", "石榴", "十六"] },
-      { q: "包子最怕什么？", a: "豆（豆沙包）", match: ["豆", "豆子"] },
-      { q: "什么鱼最白痴？", a: "鲨（傻）鱼", match: ["鲨鱼", "鲨"] },
-      { q: "黄豆年轻时候叫什么？", a: "青春豆", match: ["青春豆", "青春痘"] },
-      { q: "2和4之间是什么？", a: "和", match: ["和"] }
+    <main>
+        <div id="event-log">欢迎来到互联网大厂。</div>
+        <div id="story-text">你叫小王，刚入职一家名为“飞黄腾达”的互联网公司。在这里，你将经历每一个策划必经的修行之路。准备好了吗？</div>
+    </main>
+
+    <footer>
+        <div class="btn-group" id="choices">
+            <button onclick="startGame()">开始打工</button>
+        </div>
+    </footer>
+</div>
+
+<script>
+    // 游戏状态
+    let state = {
+        boss: 50,
+        dev: 50,
+        idea: 60,
+        hair: 100,
+        day: 0,
+        isEnded: false
+    };
+
+    // 剧情数据库 (丰富版)
+    const scenarios = [
+        {
+            id: 1,
+            day: "第1天",
+            text: "【入职欢迎会】\n老板把你叫进办公室，倒了一杯茶，语重心长地说：\n“小王啊，我们公司是扁平化管理。我有一个梦想，做一个颠覆微信的产品。只要你能想出来，期权、年终奖都不是问题！”",
+            choices: [
+                { text: "A. 激动地拍桌子：“老板英明！这想法简直降维打击！\"", effect: { boss: 20, hair: -5, dev: -10, idea: -10 }, log: "老板很受用，觉得你是个“懂事”的人。" },
+                { text: "B. 谨慎分析：“老板，微信的护城河很深，我们是否考虑差异化赛道？\"", effect: { boss: -10, hair: -5, dev: 10, idea: 10 }, log: "老板皱了皱眉，没说话。" },
+                { text: "C. 摸摸头发：“只要不加班，我肯定全力以赴。\"", effect: { boss: -5, hair: 5, dev: 0, idea: 0 }, log: "你感觉发际线稳固了一些。" }
+            ]
+        },
+        {
+            id: 2,
+            day: "第3天",
+            text: "【需求评审会·初战】\n会议室里，你提出了“根据用户心情自动切换App皮肤”的功能。\n对面的技术大哥盯着你看了三秒，缓缓吐出一句：“需求挺有创意，但传感器数据怎么拿？你是不是觉得手机能读心？”",
+            choices: [
+                { text: "A. “技术上我不懂，但我相信你们的实力！这可是KPI的关键！”", effect: { boss: 10, hair: -10, dev: -30, idea: 0 }, log: "技术大哥默默打开了Pardon网站，准备跳槽。" },
+                { text: "B. “有道理，那我们折中一下，让用户手动选心情吧？\"", effect: { boss: -5, hair: -5, dev: 20, idea: -10 }, log: "技术大哥脸色缓和了一些。" },
+                { text: "C. “我说错了？那...那我重新去调研一下用户心理模型。\"", effect: { boss: 0, hair: -15, dev: 10, idea: 20 }, log: "你熬夜写了一份50页的用户调研报告。" }
+            ]
+        },
+        {
+            id: 3,
+            day: "第14天",
+            text: "【美术的暴击】\nUI设计师把设计稿扔在你桌上：“你要的‘五彩斑斓的黑’我做出来了，但我实在看不出这和上一版有什么区别。”\n老板路过，指着设计稿：“这颜色太暗了，不够大气，没有那种‘大厂质感’。”",
+            choices: [
+                { text: "A. 附和老板：“老板说得对，要亮！要闪！要那种迪厅的感觉！”", effect: { boss: 15, hair: -10, dev: 0, idea: -20 }, log: "设计师翻了个白眼，把你拉黑了。" },
+                { text: "B. 维护设计：“这是现在的流行趋势，莫兰迪色系，高级感。”", effect: { boss: -10, hair: -5, dev: 0, idea: 15 }, log: "老板似懂非懂地点点头。" },
+                { text: "C. 两头讨好：“能不能在黑色的基础上，加一点五彩斑斓的金边？”", effect: { boss: 5, hair: -20, dev: -10, idea: 5 }, log: "你成功得罪了所有人，头发掉了好几根。" }
+            ]
+        },
+        {
+            id: 4,
+            day: "第30天",
+            text: "【测试的噩梦】\n项目临近Alpha版本，测试发现了一个Bug：\n在iPhone 13 Pro Max上，如果用户同时打开飞行模式并快速点击屏幕10次，App会闪退，并且自动给前女友发一条“我想你了”。",
+            choices: [
+                { text: "A. “这属于极端边界情况，先挂起，上线后再修。”", effect: { boss: 5, hair: -5, dev: -20, idea: 0 }, log: "程序员怒了：“这是不负责任！””" },
+                { text: "B. “这是个Feature！我们可以宣传这是‘彩蛋功能’。\"", effect: { boss: 10, hair: -5, dev: -10, idea: 30 }, log: "老板觉得你脑洞很大，点了赞。" },
+                { text: "C. “抱歉，是我的逻辑漏洞。大家今晚加班修一下吧，我请夜宵。”", effect: { boss: -5, hair: -20, dev: 20, idea: -10 }, log: "你花光了半个月的工资，保住了项目。" }
+            ]
+        },
+        {
+            id: 5,
+            day: "第40天",
+            text: "【竞品突袭】\n竞争对手突然上线了一个新功能，叫“元宇宙社交”，其实就是换了个3D虚拟形象。\n老板紧急开会：“小王，我们也要做元宇宙！明天出方案，下周上线！”",
+            choices: [
+                { text: "A. “没问题！我们把聊天背景换成3D星空就行了！”", effect: { boss: 20, hair: -15, dev: -40, idea: -20 }, log: "程序员把键盘摔了。" },
+                { text: "B. “老板，我们不做跟风狗。我们深耕现有体验，做‘极致流畅’。\"", effect: { boss: -15, hair: 0, dev: 20, idea: 10 }, log: "老板很生气，后果很严重。" },
+                { text: "C. “我们可以做个轻量版‘元空间’集成在H5里，快速试错。”", effect: { boss: 10, hair: -10, dev: 10, idea: 15 }, log: "这是一个折中的方案，大家都能接受。" }
+            ]
+        },
+        {
+            id: 6,
+            day: "第50天",
+            text: "【午休风波】\n吃饭时，你听到隔壁部门在传公司要裁员，而且会先拿新开的项目组开刀。\n你所在的组最近绩效平平，人心惶惶。",
+            choices: [
+                { text: "A. 假装没听见，回去继续写文档。", effect: { boss: 0, hair: -10, dev: 0, idea: 0 }, log: "焦虑让你掉了把头发。" },
+                { text: "B. 回组里散布消息，让大家准备简历。", effect: { boss: -30, hair: -10, dev: 0, idea: 0 }, log: "消息传到老板耳朵里，你被约谈了。" },
+                { text: "C. 找老板谈心，表忠心：“无论公司怎么变，我都愿做一块砖！”", effect: { boss: 25, hair: -5, dev: 0, idea: -10 }, log: "老板感动地拍了拍你的肩膀。" }
+            ]
+        },
+        {
+            id: 7,
+            day: "第60天",
+            text: "【数据大考】\n产品上线了，日活数据惨不忍睹。\n老板指着大屏幕：“为什么留存率只有10%？为什么用户来了就跑？”\n全场死寂，目光都看向负责策划的你。",
+            choices: [
+                { text: "A. “运营推广不给力，用户根本进不来！”", effect: { boss: -10, hair: -5, dev: 0, idea: -10 }, log: "运营总监狠狠瞪了你一眼。" },
+                { text: "B. “产品体验确实有问题，是我没考虑到用户习惯。我检讨。”", effect: { boss: -5, hair: -15, dev: 10, idea: 0 }, log: "这波锅你背了，但大家觉得你挺仗义。" },
+                { text: "C. “我们可以马上改！加个‘每日签到送红包’功能，绝对拉留存！”", effect: { boss: 15, hair: -20, dev: -15, idea: 10 }, log: "虽然很土，但老板喜欢能落地的东西。" }
+            ]
+        },
+        {
+            id: 8,
+            day: "第70天",
+            text: "【通宵上线】\n为了赶一个大版本，全组已经连续加班一周了。今晚是最后冲刺。\n凌晨3点，你发现文档里有一个逻辑错误，如果改，程序员得重写核心代码；如果不改，上线后会有小概率卡顿。",
+            choices: [
+                { text: "A. 不改了。那个卡顿用户应该不会发现的，先睡了。", effect: { boss: 0, hair: 10, dev: 0, idea: -10 }, log: "你保住了头发，但良心隐隐作痛。" },
+                { text: "B. 喊醒程序员：“兄弟，对不住，这里得改一下，我请一个月早饭！”", effect: { boss: 5, hair: -25, dev: -10, idea: 10 }, log: "程序员一边骂一边改，你的头发又掉了一把。" },
+                { text: "C. 自己硬着头皮去改代码（虽然你不会写），结果搞崩了服务器。", effect: { boss: -30, hair: -30, dev: -50, idea: 0 }, log: "灾难性事件！全员通宵修复你的烂摊子。" }
+            ]
+        },
+        {
+            id: 9,
+            day: "最终审判",
+            text: "【结局时刻】\n大版本终于上线。你的身体已经到了极限，各项数值也决定了你在公司的命运。\n\nHR递给你一份文件，是续约合同，还是离职证明？",
+            choices: [
+                { text: "查看命运", effect: {}, next: "end" }
+            ]
+        }
     ];
 
-    // 元素获取
-    const startBox = document.getElementById('startBox');
-    const gameBox = document.getElementById('gameBox');
-    const startBtn = document.getElementById('startBtn');
-    const questionProgressEl = document.getElementById('questionProgress');
-    const timerEl = document.getElementById('timer');
-    const questionEl = document.getElementById('question');
-    const inputEl = document.getElementById('answerInput');
-    const hintEl = document.getElementById('hint');
-    const submitBtn = document.getElementById('submitBtn');
-    const skipBtn = document.getElementById('skipBtn');
-    const restartBtn = document.getElementById('restartBtn');
-    const resultEl = document.getElementById('result');
-    const correctCountEl = document.getElementById('correctCount');
-    const wrongCountEl = document.getElementById('wrongCount');
-    const skipCountEl = document.getElementById('skipCount');
-    const finalScoreEl = document.getElementById('finalScore');
-    const totalTimeEl = document.getElementById('totalTime');
-    const scoreTipsEl = document.getElementById('scoreTips');
+    // 更新UI
+    function updateUI() {
+        document.getElementById('val-boss').innerText = state.boss;
+        document.getElementById('val-dev').innerText = state.dev;
+        document.getElementById('val-idea').innerText = state.idea;
+        document.getElementById('val-hair').innerText = state.hair;
 
-    // 全局变量
-    let currentQuestions, currentIndex;
-    let correctCount = 0, wrongCount = 0, skipCount = 0;
-    // 计时器相关变量
-    let startTime = null;
-    let timerInterval = null;
-    let totalElapsedTime = 0;
-
-    // 时间格式化函数（毫秒转 时:分:秒）
-    function formatTime(ms) {
-      const totalSeconds = Math.floor(ms / 1000);
-      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-      const seconds = String(totalSeconds % 60).padStart(2, '0');
-      return `${hours}:${minutes}:${seconds}`;
+        updateBar('boss', state.boss, '#3498db');
+        updateBar('dev', state.dev, '#9b59b6');
+        updateBar('idea', state.idea, '#f1c40f');
+        updateBar('hair', state.hair, '#2ecc71');
     }
 
-    // 更新计时器显示
-    function updateTimer() {
-      if (!startTime) return;
-      const now = Date.now();
-      totalElapsedTime = now - startTime;
-      timerEl.textContent = `用时：${formatTime(totalElapsedTime)}`;
-    }
-
-    // 启动计时器
-    function startTimer() {
-      // 重置计时器
-      clearInterval(timerInterval);
-      startTime = Date.now();
-      // 每秒更新一次时间
-      timerInterval = setInterval(updateTimer, 1000);
-      // 立即更新一次
-      updateTimer();
-    }
-
-    // 停止计时器
-    function stopTimer() {
-      clearInterval(timerInterval);
-      updateTimer(); // 最后更新一次时间
-    }
-
-    // 答案标准化函数（处理数字/中文、元/圆、空格等）
-    function normalizeAnswer(str) {
-      if (!str) return '';
-      // 1. 去除空格、转小写
-      let normalized = str.trim().toLowerCase();
-      // 2. 统一“圆”为“元”
-      normalized = normalized.replace(/圆/g, '元');
-      // 3. 常见数字转中文（反向也兼容）
-      const numMap = {
-        '0': '零',
-        '1': '一',
-        '8': '八',
-        '16': '十六',
-        '4': '四',
-        '1亿': '一亿'
-      };
-      // 替换数字为中文（保证匹配一致性）
-      for (const [num, cn] of Object.entries(numMap)) {
-        if (normalized.includes(num)) {
-          normalized = normalized.replace(num, cn);
+    function updateBar(id, value, color) {
+        const bar = document.getElementById('bar-' + id);
+        bar.style.width = Math.max(0, value) + '%';
+        bar.style.background = color;
+        
+        // 危险时变红
+        if (value <= 20 && id !== 'hair') {
+            bar.style.background = '#e74c3c';
         }
-      }
-      return normalized;
+        if (id === 'hair' && value <= 30) {
+             bar.style.background = '#e74c3c';
+        }
     }
 
-    // 随机打乱整个题库（50道题）
-    function get50RandomQuestions() {
-      return [...questionBank].sort(() => Math.random() - 0.5);
+    // 渲染场景
+    function renderScene(sceneId) {
+        if (state.isEnded) return;
+        const scene = scenarios.find(s => s.id === sceneId);
+        
+        if (!scene) { console.error("场景未找到"); return; }
+
+        state.day = scene.day;
+
+        const textEl = document.getElementById('story-text');
+        // 显示日期和文本
+        textEl.innerHTML = `<span style="color:#888;font-size:0.9rem">【${scene.day}】</span><br><br>${scene.text.replace(/\n/g, '<br>')}`;
+        
+        window.scrollTo(0, 0);
+
+        const choicesEl = document.getElementById('choices');
+        choicesEl.innerHTML = '';
+
+        scene.choices.forEach((choice) => {
+            const btn = document.createElement('button');
+            btn.innerText = choice.text;
+            btn.onclick = () => makeChoice(choice);
+            choicesEl.appendChild(btn);
+        });
     }
 
-    // 初始化游戏
-    function initGame() {
-      // 重置答题数据
-      currentQuestions = get50RandomQuestions();
-      currentIndex = 0;
-      correctCount = 0;
-      wrongCount = 0;
-      skipCount = 0;
+    // 做出选择
+    function makeChoice(choice) {
+        // 应用效果
+        if(choice.effect) {
+            state.boss += choice.effect.boss || 0;
+            state.dev += choice.effect.dev || 0;
+            state.idea += choice.effect.idea || 0;
+            state.hair += choice.effect.hair || 0;
+        }
 
-      // 重置界面
-      inputEl.style.display = "block";
-      submitBtn.style.display = "block";
-      skipBtn.style.display = "block";
-      restartBtn.style.display = "none";
-      resultEl.style.display = "none";
-      hintEl.textContent = "";
+        // 限制范围 0-100
+        state.boss = Math.max(0, Math.min(100, state.boss));
+        state.dev = Math.max(0, Math.min(100, state.dev));
+        state.idea = Math.max(0, Math.min(100, state.idea));
+        state.hair = Math.max(0, Math.min(100, state.hair));
 
-      // 更新题目进度
-      questionProgressEl.textContent = `第 ${currentIndex + 1}/50 题`;
-      // 显示第一题
-      showQuestion();
+        // 显示日志
+        const logEl = document.getElementById('event-log');
+        if(choice.log) {
+            logEl.innerHTML = "⚡ " + choice.log;
+        } else {
+            logEl.innerHTML = "...";
+        }
 
-      // 启动计时器
-      startTimer();
+        updateUI();
+
+        // 检查中途死亡/失败
+        if (state.hair <= 0) { endGame("猝死"); return; }
+        if (state.dev <= 0) { endGame("被杀"); return; }
+        if (state.boss <= 0 && state.day !== "最终审判") { endGame("被辞退"); return; }
+
+        // 跳转
+        if (choice.next === "end") {
+            calculateEnding();
+        } else {
+            // 找到下一个ID，这里简单处理为当前场景索引+1
+            const currentIndex = scenarios.findIndex(s => s.id === choice.effect.next || s.id === state.day); 
+            // 实际上我们是按数组顺序走的，除非choice指定了next id。
+            // 修正逻辑：我们在scenarios数组里按顺序放，这里只要找到当前scene的下一个即可
+            const currentSceneIndex = scenarios.findIndex(s => s.text === document.getElementById('story-text').innerText.split('\n')[2]); // 简单匹配不可靠
+            
+            // 更安全的做法：记录当前进度
+            // 这里简化处理：choice里没有存next id，我们就默认走scenarios数组的下一项
+            // 但为了逻辑严谨，最好给每个choice加上next。上面数据里没有全加，这里兼容一下。
+            
+            const currentId = scenarios.find(s => s.day === state.day).id;
+            const nextIndex = scenarios.findIndex(s => s.id === currentId) + 1;
+            
+            if(nextIndex < scenarios.length) {
+                renderScene(scenarios[nextIndex].id);
+            } else {
+                calculateEnding();
+            }
+        }
     }
 
-    // 显示当前题目
-    function showQuestion() {
-      questionEl.textContent = currentQuestions[currentIndex].q;
-      hintEl.textContent = "";
-      inputEl.value = ""; // 仅切换题目时清空，答错不清空
-      // 更新题目进度
-      questionProgressEl.textContent = `第 ${currentIndex + 1}/50 题`;
+    // 结局计算
+    function calculateEnding() {
+        state.isEnded = true;
+        let title = "";
+        let desc = "";
+        
+        // 综合评分逻辑
+        const totalScore = state.boss + state.dev + state.idea + state.hair;
+
+        if (state.hair <= 10) {
+            title = "💀 【结局：聪明绝顶】";
+            desc = "你的发际线已经退到了后脑勺。虽然你成了公司的技术总监，但你也失去了作为年轻人的最后一点尊严。建议植发。";
+        } else if (state.boss >= 80 && state.dev >= 70 && state.idea >= 70) {
+            title = "🏆 【结局：职场大满贯】";
+            desc = "不可思议！你竟然在取悦老板、安抚程序猿和保持创意之间找到了完美的平衡点。你升职为产品VP，并保住了头发。你是神吗？";
+        } else if (state.boss >= 80 && state.idea >= 60) {
+            title = "👔 【结局：老板的左膀右臂】";
+            desc = "老板非常赏识你，把你提拔为合伙人。虽然程序员们看到你就翻白眼，但谁在乎呢？你有钱了。";
+        } else if (state.dev >= 80) {
+            title = "💻 【结局：程序员之友】";
+            desc = "你太懂技术了，导致程序员们甚至想拉你转岗做开发。你虽然不怎么受老板待见，但在组里人缘极好，每天摸鱼也很快乐。";
+        } else if (state.idea >= 80) {
+            title = "🎨 【结局：孤独的艺术家】";
+            desc = "你坚持了自己的创意审美，虽然数据不好看，但你的App获得了“年度设计奖”。老板把你开了，但你很快去了设计公司。";
+        } else if (totalScore < 150) {
+            title = "🗑️ 【结局：职场耗材】";
+            desc = "你在这个项目中耗尽了心力，却一事无成。老板不满意，同事不喜欢，创意也没了。HR正在给你办离职手续，记得拿N+1。";
+        } else {
+            title = "🤷 【结局：普通的大多数】";
+            desc = "你平平安安地混过了试用期，没有大功也没有大过。日子一天天过去，你依然是那个默默无闻的小策划。这或许也是一种幸福？";
+        }
+
+        const textEl = document.getElementById('story-text');
+        textEl.innerHTML = `<div class="ending-box"><div class="ending-title">${title}</div><br>${desc}<br><br><div style="font-size:0.8rem; color:#666">最终属性：老板${state.boss} / 程序${state.dev} / 创意${state.idea} / 发际线${state.hair}</div></div>`;
+        
+        const choicesEl = document.getElementById('choices');
+        choicesEl.innerHTML = '<button onclick="location.reload()">再活一次</button>';
     }
 
-    // 提交答案逻辑
-    submitBtn.addEventListener('click', () => {
-      const userAns = inputEl.value.trim();
-      if (!userAns) {
-        hintEl.className = "error";
-        hintEl.textContent = "请先输入答案再提交哦！";
-        return;
-      }
-
-      // 标准化用户输入和正确答案
-      const normalizedUserAns = normalizeAnswer(userAns);
-      const currentQ = currentQuestions[currentIndex];
-      const normalizedCorrectMatches = currentQ.match.map(item => normalizeAnswer(item));
-
-      // 判断是否匹配任一正确答案
-      if (normalizedCorrectMatches.includes(normalizedUserAns)) {
-        // 答对：加分+提示+进入下一题
-        correctCount++;
-        hintEl.className = "success";
-        hintEl.textContent = "答对啦！真聪明~";
-        // 延迟切换下一题，让用户看到反馈
-        setTimeout(() => {
-          currentIndex++;
-          if (currentIndex >= currentQuestions.length) {
-            showResult(); // 答题结束
-          } else {
-            showQuestion();
-          }
-        }, 800);
-      } else {
-        // 答错：仅提示错误，不清空答案、不换题
-        wrongCount++; 
-        hintEl.className = "error";
-        hintEl.textContent = "答错啦，再想想~";
-      }
-    });
-
-    // 跳过本题逻辑（新增二次确认）
-    skipBtn.addEventListener('click', () => {
-      // 二次确认弹窗，用户点击“确定”才执行跳过
-      const confirmSkip = confirm("确定要跳过本题吗？跳过将直接显示正确答案并进入下一题哦~");
-      if (confirmSkip) {
-        skipCount++;
-        // 公布正确答案+提示跳过
-        const correctAns = currentQuestions[currentIndex].a;
-        hintEl.className = "skip";
-        hintEl.textContent = `已跳过本题 ✨ 正确答案：${correctAns}`;
-        // 延迟进入下一题
-        setTimeout(() => {
-          currentIndex++;
-          if (currentIndex >= currentQuestions.length) {
-            showResult(); // 答题结束
-          } else {
-            showQuestion();
-          }
-        }, 1200);
-      }
-      // 用户点击“取消”则不执行任何操作
-    });
-
-    // 展示答题结果
-    function showResult() {
-      // 停止计时器
-      stopTimer();
-
-      // 隐藏答题区，显示结果和重新开始按钮
-      inputEl.style.display = "none";
-      submitBtn.style.display = "none";
-      skipBtn.style.display = "none";
-      restartBtn.style.display = "block";
-      resultEl.style.display = "block";
-
-      // 计算得分（每题1分，仅答对得分）
-      const finalScore = correctCount;
-      
-      // 更新统计数据
-      correctCountEl.textContent = correctCount;
-      wrongCountEl.textContent = wrongCount;
-      skipCountEl.textContent = skipCount;
-      finalScoreEl.textContent = finalScore;
-      // 显示总用时
-      totalTimeEl.textContent = formatTime(totalElapsedTime);
-
-      // 得分评语
-      if (finalScore >= 40) {
-        finalScoreEl.className = "score-high";
-        scoreTipsEl.textContent = "🎉 太厉害啦！你是答题小能手～";
-      } else if (finalScore >= 20) {
-        finalScoreEl.className = "score-middle";
-        scoreTipsEl.textContent = "👍 表现不错，继续加油！";
-      } else {
-        finalScoreEl.className = "score-low";
-        scoreTipsEl.textContent = "💪 下次再努力，多试试就会啦！";
-      }
-
-      // 更新进度提示
-      questionProgressEl.textContent = "答题结束！";
+    function endGame(type) {
+        state.isEnded = true;
+        const textEl = document.getElementById('story-text');
+        
+        if (type === "猝死") {
+            textEl.innerHTML = "<h2>☠️ GAME OVER</h2><br>你的发际线归零了。<br>你在凌晨4点的会议室倒下，手里还攥着第50版需求文档。<br><br>医生说：过度劳累，建议转行卖煎饼果子。";
+        } else if (type === "被杀") {
+            textEl.innerHTML = "<h2>☠️ GAME OVER</h2><br>程序员好感度归零。<br>你因为提了一个“五彩斑斓的黑且要自动变色”的需求，被愤怒的极客团队用机械键盘物理超度了。";
+        } else if (type === "被辞退") {
+            textEl.innerHTML = "<h2>☠️ GAME OVER</h2><br>老板满意度归零。<br>老板觉得你“缺乏狼性”、“没有大局观”。你的工牌被收走，抱着箱子离开了大楼。";
+        }
+        
+        const choicesEl = document.getElementById('choices');
+        choicesEl.innerHTML = '<button onclick="location.reload()">重头再来</button>';
     }
 
-    // 开始答题按钮事件
-    startBtn.addEventListener('click', () => {
-      startBox.style.display = "none"; // 隐藏开始界面
-      gameBox.style.display = "block"; // 显示答题界面
-      initGame(); // 初始化游戏并启动计时器
-    });
+    function startGame() {
+        state = { boss: 50, dev: 50, idea: 60, hair: 100, day: 0, isEnded: false };
+        document.getElementById('event-log').innerText = "职场第一天，保持微笑。";
+        updateUI();
+        renderScene(1);
+    }
 
-    // 重新开始答题
-    restartBtn.addEventListener('click', () => {
-      // 重置计时器
-      clearInterval(timerInterval);
-      startTime = null;
-      totalElapsedTime = 0;
-      timerEl.textContent = "用时：00:00:00";
-      // 重新初始化游戏
-      initGame();
-    });
-  </script>
+    // 初始化
+    updateUI();
+</script>
+
 </body>
 </html>
