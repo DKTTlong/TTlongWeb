@@ -1,499 +1,297 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>策划生存指南：从入职到背锅</title>
+    <title>策划生存指南</title>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --accent-color: #e74c3c;
-            --bg-color: #ecf0f1;
-            --card-bg: #fff;
-            --text-color: #34495e;
-        }
-
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-size: 16px;
+            background-color: #f5f5f5;
+            color: #333;
         }
-
-        #game-container {
-            width: 100%;
-            max-width: 640px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 85vh; /* 固定高度，内容滚动 */
-            position: relative;
-        }
-
-        /* 头部状态栏 */
-        header {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            color: white;
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
             padding: 20px;
-            flex-shrink: 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
-        h1 { margin: 0 0 15px 0; font-size: 1.1rem; text-align: center; letter-spacing: 1px; }
-        
-        .status-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
         }
-
-        .stat-box {
-            background: rgba(255,255,255,0.1);
-            padding: 8px 12px;
-            border-radius: 6px;
-        }
-
-        .stat-label {
+        .stats {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
-            margin-bottom: 4px;
-            opacity: 0.9;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-
+        .stat {
+            width: 22%;
+            text-align: center;
+        }
         .stat-bar {
-            width: 100%;
-            height: 5px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 3px;
+            height: 15px;
+            background: #e0e0e0;
+            border-radius: 7px;
+            margin-top: 5px;
             overflow: hidden;
         }
-
         .stat-fill {
             height: 100%;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #4CAF50;
+            border-radius: 7px;
         }
-
-        /* 游戏内容区 */
-        main {
-            flex: 1;
-            padding: 25px;
-            overflow-y: auto;
-            background: #fff;
-        }
-
-        #story-text {
-            line-height: 1.8;
-            color: var(--text-color);
-            margin-bottom: 20px;
-            font-size: 1rem;
-            white-space: pre-wrap; /* 保留换行 */
-        }
-
-        .highlight { color: #e67e22; font-weight: bold; }
-        .danger-text { color: #c0392b; font-weight: bold; }
-
-        /* 事件日志 */
-        #event-log {
-            min-height: 40px;
-            margin-bottom: 15px;
-            padding: 10px;
+        .story {
             background: #f9f9f9;
-            border-left: 3px solid #bdc3c7;
-            font-size: 0.85rem;
-            color: #7f8c8d;
-            border-radius: 0 4px 4px 0;
-            transition: all 0.3s;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            white-space: pre-line;
+            line-height: 1.6;
         }
-
-        /* 选项区 */
-        footer {
-            padding: 20px;
-            background: #fafafa;
-            border-top: 1px solid #eee;
-            flex-shrink: 0;
-        }
-
-        .btn-group {
+        .choices {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
-
-        button {
-            background: white;
-            border: 2px solid #bdc3c7;
-            padding: 14px;
-            font-size: 0.95rem;
+        .choice {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
             cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s;
+            font-size: 16px;
             text-align: left;
-            color: var(--text-color);
-            position: relative;
-            overflow: hidden;
         }
-
-        button:hover {
-            border-color: var(--primary-color);
-            background: #f8f9f9;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        .choice:hover {
+            background: #2980b9;
         }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .day-badge {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            background: #eee;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #666;
-        }
-
-        /* 结局特殊样式 */
-        .ending-box {
+        .ending {
             text-align: center;
-            border-top: 2px solid #eee;
-            padding-top: 20px;
+            padding: 20px;
+            background: #e8f4f8;
+            border-radius: 8px;
         }
-        .ending-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; }
-
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-            100% { transform: translateX(0); }
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            .stat {
+                width: 48%;
+            }
         }
-        .shake { animation: shake 0.3s; }
     </style>
 </head>
 <body>
-
-<div id="game-container">
-    <header>
-        <h1>💻 策划生存指南：从入职到背锅</h1>
-        <div class="status-grid">
-            <div class="stat-box">
-                <div class="stat-label"><span>👨‍💼 老板满意度</span><span id="val-boss">50</span></div>
-                <div class="stat-bar"><div class="stat-fill" id="bar-boss" style="width: 50%; background: #3498db;"></div></div>
+    <div class="container">
+        <h1>策划生存指南：从入职到背锅</h1>
+        
+        <div class="stats">
+            <div class="stat">
+                <div>老板满意度: <span id="boss">50</span></div>
+                <div class="stat-bar"><div class="stat-fill" id="boss-bar" style="width: 50%"></div></div>
             </div>
-            <div class="stat-box">
-                <div class="stat-label"><span>💻 程序好感度</span><span id="val-dev">50</span></div>
-                <div class="stat-bar"><div class="stat-fill" id="bar-dev" style="width: 50%; background: #9b59b6;"></div></div>
+            <div class="stat">
+                <div>程序猿好感: <span id="dev">50</span></div>
+                <div class="stat-bar"><div class="stat-fill" id="dev-bar" style="width: 50%"></div></div>
             </div>
-            <div class="stat-box">
-                <div class="stat-label"><span>💡 创意值</span><span id="val-idea">60</span></div>
-                <div class="stat-bar"><div class="stat-fill" id="bar-idea" style="width: 60%; background: #f1c40f;"></div></div>
+            <div class="stat">
+                <div>创意值: <span id="idea">60</span></div>
+                <div class="stat-bar"><div class="stat-fill" id="idea-bar" style="width: 60%"></div></div>
             </div>
-            <div class="stat-box">
-                <div class="stat-label"><span>💇 发际线</span><span id="val-hair">100</span></div>
-                <div class="stat-bar"><div class="stat-fill" id="bar-hair" style="width: 100%; background: #2ecc71;"></div></div>
+            <div class="stat">
+                <div>发际线: <span id="hair">100</span></div>
+                <div class="stat-bar"><div class="stat-fill" id="hair-bar" style="width: 100%"></div></div>
             </div>
         </div>
-    </header>
 
-    <main>
-        <div id="event-log">欢迎来到互联网大厂。</div>
-        <div id="story-text">你叫小王，刚入职一家名为“飞黄腾达”的互联网公司。在这里，你将经历每一个策划必经的修行之路。准备好了吗？</div>
-    </main>
-
-    <footer>
-        <div class="btn-group" id="choices">
-            <button onclick="startGame()">开始打工</button>
+        <div id="story" class="story">
+            你叫小王，刚入职一家名为"飞黄腾达"的互联网公司。
+            在这里，你将经历每一个策划必经的修行之路。
+            准备好了吗？
         </div>
-    </footer>
-</div>
 
-<script>
-    // 游戏状态
-    let state = {
-        boss: 50,
-        dev: 50,
-        idea: 60,
-        hair: 100,
-        day: 0,
-        isEnded: false
-    };
+        <div id="choices" class="choices">
+            <button class="choice" onclick="startGame()">开始游戏</button>
+        </div>
+    </div>
 
-    // 剧情数据库 (丰富版)
-    const scenarios = [
-        {
-            id: 1,
-            day: "第1天",
-            text: "【入职欢迎会】\n老板把你叫进办公室，倒了一杯茶，语重心长地说：\n“小王啊，我们公司是扁平化管理。我有一个梦想，做一个颠覆微信的产品。只要你能想出来，期权、年终奖都不是问题！”",
-            choices: [
-                { text: "A. 激动地拍桌子：“老板英明！这想法简直降维打击！\"", effect: { boss: 20, hair: -5, dev: -10, idea: -10 }, log: "老板很受用，觉得你是个“懂事”的人。" },
-                { text: "B. 谨慎分析：“老板，微信的护城河很深，我们是否考虑差异化赛道？\"", effect: { boss: -10, hair: -5, dev: 10, idea: 10 }, log: "老板皱了皱眉，没说话。" },
-                { text: "C. 摸摸头发：“只要不加班，我肯定全力以赴。\"", effect: { boss: -5, hair: 5, dev: 0, idea: 0 }, log: "你感觉发际线稳固了一些。" }
-            ]
-        },
-        {
-            id: 2,
-            day: "第3天",
-            text: "【需求评审会·初战】\n会议室里，你提出了“根据用户心情自动切换App皮肤”的功能。\n对面的技术大哥盯着你看了三秒，缓缓吐出一句：“需求挺有创意，但传感器数据怎么拿？你是不是觉得手机能读心？”",
-            choices: [
-                { text: "A. “技术上我不懂，但我相信你们的实力！这可是KPI的关键！”", effect: { boss: 10, hair: -10, dev: -30, idea: 0 }, log: "技术大哥默默打开了Pardon网站，准备跳槽。" },
-                { text: "B. “有道理，那我们折中一下，让用户手动选心情吧？\"", effect: { boss: -5, hair: -5, dev: 20, idea: -10 }, log: "技术大哥脸色缓和了一些。" },
-                { text: "C. “我说错了？那...那我重新去调研一下用户心理模型。\"", effect: { boss: 0, hair: -15, dev: 10, idea: 20 }, log: "你熬夜写了一份50页的用户调研报告。" }
-            ]
-        },
-        {
-            id: 3,
-            day: "第14天",
-            text: "【美术的暴击】\nUI设计师把设计稿扔在你桌上：“你要的‘五彩斑斓的黑’我做出来了，但我实在看不出这和上一版有什么区别。”\n老板路过，指着设计稿：“这颜色太暗了，不够大气，没有那种‘大厂质感’。”",
-            choices: [
-                { text: "A. 附和老板：“老板说得对，要亮！要闪！要那种迪厅的感觉！”", effect: { boss: 15, hair: -10, dev: 0, idea: -20 }, log: "设计师翻了个白眼，把你拉黑了。" },
-                { text: "B. 维护设计：“这是现在的流行趋势，莫兰迪色系，高级感。”", effect: { boss: -10, hair: -5, dev: 0, idea: 15 }, log: "老板似懂非懂地点点头。" },
-                { text: "C. 两头讨好：“能不能在黑色的基础上，加一点五彩斑斓的金边？”", effect: { boss: 5, hair: -20, dev: -10, idea: 5 }, log: "你成功得罪了所有人，头发掉了好几根。" }
-            ]
-        },
-        {
-            id: 4,
-            day: "第30天",
-            text: "【测试的噩梦】\n项目临近Alpha版本，测试发现了一个Bug：\n在iPhone 13 Pro Max上，如果用户同时打开飞行模式并快速点击屏幕10次，App会闪退，并且自动给前女友发一条“我想你了”。",
-            choices: [
-                { text: "A. “这属于极端边界情况，先挂起，上线后再修。”", effect: { boss: 5, hair: -5, dev: -20, idea: 0 }, log: "程序员怒了：“这是不负责任！””" },
-                { text: "B. “这是个Feature！我们可以宣传这是‘彩蛋功能’。\"", effect: { boss: 10, hair: -5, dev: -10, idea: 30 }, log: "老板觉得你脑洞很大，点了赞。" },
-                { text: "C. “抱歉，是我的逻辑漏洞。大家今晚加班修一下吧，我请夜宵。”", effect: { boss: -5, hair: -20, dev: 20, idea: -10 }, log: "你花光了半个月的工资，保住了项目。" }
-            ]
-        },
-        {
-            id: 5,
-            day: "第40天",
-            text: "【竞品突袭】\n竞争对手突然上线了一个新功能，叫“元宇宙社交”，其实就是换了个3D虚拟形象。\n老板紧急开会：“小王，我们也要做元宇宙！明天出方案，下周上线！”",
-            choices: [
-                { text: "A. “没问题！我们把聊天背景换成3D星空就行了！”", effect: { boss: 20, hair: -15, dev: -40, idea: -20 }, log: "程序员把键盘摔了。" },
-                { text: "B. “老板，我们不做跟风狗。我们深耕现有体验，做‘极致流畅’。\"", effect: { boss: -15, hair: 0, dev: 20, idea: 10 }, log: "老板很生气，后果很严重。" },
-                { text: "C. “我们可以做个轻量版‘元空间’集成在H5里，快速试错。”", effect: { boss: 10, hair: -10, dev: 10, idea: 15 }, log: "这是一个折中的方案，大家都能接受。" }
-            ]
-        },
-        {
-            id: 6,
-            day: "第50天",
-            text: "【午休风波】\n吃饭时，你听到隔壁部门在传公司要裁员，而且会先拿新开的项目组开刀。\n你所在的组最近绩效平平，人心惶惶。",
-            choices: [
-                { text: "A. 假装没听见，回去继续写文档。", effect: { boss: 0, hair: -10, dev: 0, idea: 0 }, log: "焦虑让你掉了把头发。" },
-                { text: "B. 回组里散布消息，让大家准备简历。", effect: { boss: -30, hair: -10, dev: 0, idea: 0 }, log: "消息传到老板耳朵里，你被约谈了。" },
-                { text: "C. 找老板谈心，表忠心：“无论公司怎么变，我都愿做一块砖！”", effect: { boss: 25, hair: -5, dev: 0, idea: -10 }, log: "老板感动地拍了拍你的肩膀。" }
-            ]
-        },
-        {
-            id: 7,
-            day: "第60天",
-            text: "【数据大考】\n产品上线了，日活数据惨不忍睹。\n老板指着大屏幕：“为什么留存率只有10%？为什么用户来了就跑？”\n全场死寂，目光都看向负责策划的你。",
-            choices: [
-                { text: "A. “运营推广不给力，用户根本进不来！”", effect: { boss: -10, hair: -5, dev: 0, idea: -10 }, log: "运营总监狠狠瞪了你一眼。" },
-                { text: "B. “产品体验确实有问题，是我没考虑到用户习惯。我检讨。”", effect: { boss: -5, hair: -15, dev: 10, idea: 0 }, log: "这波锅你背了，但大家觉得你挺仗义。" },
-                { text: "C. “我们可以马上改！加个‘每日签到送红包’功能，绝对拉留存！”", effect: { boss: 15, hair: -20, dev: -15, idea: 10 }, log: "虽然很土，但老板喜欢能落地的东西。" }
-            ]
-        },
-        {
-            id: 8,
-            day: "第70天",
-            text: "【通宵上线】\n为了赶一个大版本，全组已经连续加班一周了。今晚是最后冲刺。\n凌晨3点，你发现文档里有一个逻辑错误，如果改，程序员得重写核心代码；如果不改，上线后会有小概率卡顿。",
-            choices: [
-                { text: "A. 不改了。那个卡顿用户应该不会发现的，先睡了。", effect: { boss: 0, hair: 10, dev: 0, idea: -10 }, log: "你保住了头发，但良心隐隐作痛。" },
-                { text: "B. 喊醒程序员：“兄弟，对不住，这里得改一下，我请一个月早饭！”", effect: { boss: 5, hair: -25, dev: -10, idea: 10 }, log: "程序员一边骂一边改，你的头发又掉了一把。" },
-                { text: "C. 自己硬着头皮去改代码（虽然你不会写），结果搞崩了服务器。", effect: { boss: -30, hair: -30, dev: -50, idea: 0 }, log: "灾难性事件！全员通宵修复你的烂摊子。" }
-            ]
-        },
-        {
-            id: 9,
-            day: "最终审判",
-            text: "【结局时刻】\n大版本终于上线。你的身体已经到了极限，各项数值也决定了你在公司的命运。\n\nHR递给你一份文件，是续约合同，还是离职证明？",
-            choices: [
-                { text: "查看命运", effect: {}, next: "end" }
-            ]
+    <script>
+        let state = {
+            boss: 50,
+            dev: 50,
+            idea: 60,
+            hair: 100
+        };
+
+        const scenarios = [
+            {
+                text: "【入职欢迎会】老板把你叫进办公室，倒了一杯茶，语重心长地说：\n\"小王啊，我们公司是扁平化管理。我有一个梦想，做一个颠覆微信的产品。只要你能想出来，期权、年终奖都不是问题！\"",
+                choices: [
+                    { text: "A. 激动地拍桌子：\"老板英明！这想法简直降维打击！\"", effect: { boss: 20, hair: -5, dev: -10, idea: -10 } },
+                    { text: "B. 谨慎分析：\"老板，微信的护城河很深，我们是否考虑差异化赛道？\"", effect: { boss: -10, hair: -5, dev: 10, idea: 10 } },
+                    { text: "C. 摸摸头发：\"只要不加班，我肯定全力以赴。\"", effect: { boss: -5, hair: 5, dev: 0, idea: 0 } }
+                ]
+            },
+            {
+                text: "【需求评审会】会议室里，你提出了\"根据用户心情自动切换App皮肤\"的功能。\n对面的技术大哥盯着你看了三秒，缓缓吐出一句：\"需求挺有创意，但传感器数据怎么拿？你是不是觉得手机能读心？\"",
+                choices: [
+                    { text: "A. \"技术上我不懂，但我相信你们的实力！这可是KPI的关键！\"", effect: { boss: 10, hair: -10, dev: -30, idea: 0 } },
+                    { text: "B. \"有道理，那我们折中一下，让用户手动选心情吧？\"", effect: { boss: -5, hair: -5, dev: 20, idea: -10 } },
+                    { text: "C. \"我说错了？那...那我重新去调研一下用户心理模型。\"", effect: { boss: 0, hair: -15, dev: 10, idea: 20 } }
+                ]
+            },
+            {
+                text: "【美术的暴击】UI设计师把设计稿扔在你桌上：\"你要的'五彩斑斓的黑'我做出来了，但我实在看不出这和上一版有什么区别。\"\n老板路过，指着设计稿：\"这颜色太暗了，不够大气，没有那种'大厂质感'。\"",
+                choices: [
+                    { text: "A. 附和老板：\"老板说得对，要亮！要闪！要那种迪厅的感觉！\"", effect: { boss: 15, hair: -10, dev: 0, idea: -20 } },
+                    { text: "B. 维护设计：\"这是现在的流行趋势，莫兰迪色系，高级感。\"", effect: { boss: -10, hair: -5, dev: 0, idea: 15 } },
+                    { text: "C. 两头讨好：\"能不能在黑色的基础上，加一点五彩斑斓的金边？\"", effect: { boss: 5, hair: -20, dev: -10, idea: 5 } }
+                ]
+            },
+            {
+                text: "【测试的噩梦】项目临近Alpha版本，测试发现了一个Bug：\n在iPhone 13 Pro Max上，如果用户同时打开飞行模式并快速点击屏幕10次，App会闪退，并且自动给前女友发一条\"我想你了\"。",
+                choices: [
+                    { text: "A. \"这属于极端边界情况，先挂起，上线后再修。\"", effect: { boss: 5, hair: -5, dev: -20, idea: 0 } },
+                    { text: "B. \"这是个Feature！我们可以宣传这是'彩蛋功能'。\"", effect: { boss: 10, hair: -5, dev: -10, idea: 30 } },
+                    { text: "C. \"抱歉，是我的逻辑漏洞。大家今晚加班修一下吧，我请夜宵。\"", effect: { boss: -5, hair: -20, dev: 20, idea: -10 } }
+                ]
+            },
+            {
+                text: "【竞品突袭】竞争对手突然上线了一个新功能，叫\"元宇宙社交\"，其实就是换了个3D虚拟形象。\n老板紧急开会：\"小王，我们也要做元宇宙！明天出方案，下周上线！\"",
+                choices: [
+                    { text: "A. \"没问题！我们把聊天背景换成3D星空就行了！\"", effect: { boss: 20, hair: -15, dev: -40, idea: -20 } },
+                    { text: "B. \"老板，我们不做跟风狗。我们深耕现有体验，做'极致流畅'。\"", effect: { boss: -15, hair: 0, dev: 20, idea: 10 } },
+                    { text: "C. \"我们可以做个轻量版'元空间'集成在H5里，快速试错。\"", effect: { boss: 10, hair: -10, dev: 10, idea: 15 } }
+                ]
+            },
+            {
+                text: "【数据大考】产品上线了，日活数据惨不忍睹。\n老板指着大屏幕：\"为什么留存率只有10%？为什么用户来了就跑？\"\n全场死寂，目光都看向负责策划的你。",
+                choices: [
+                    { text: "A. \"运营推广不给力，用户根本进不来！\"", effect: { boss: -10, hair: -5, dev: 0, idea: -10 } },
+                    { text: "B. \"产品体验确实有问题，是我没考虑到用户习惯。我检讨。\"", effect: { boss: -5, hair: -15, dev: 10, idea: 0 } },
+                    { text: "C. \"我们可以马上改！加个'每日签到送红包'功能，绝对拉留存！\"", effect: { boss: 15, hair: -20, dev: -15, idea: 10 } }
+                ]
+            },
+            {
+                text: "【最终审判】大版本终于上线。你的身体已经到了极限，各项数值也决定了你在公司的命运。\n\nHR递给你一份文件，是续约合同，还是离职证明？",
+                choices: [
+                    { text: "查看命运", effect: {}, next: "end" }
+                ]
+            }
+        ];
+
+        function updateStats() {
+            document.getElementById('boss').textContent = state.boss;
+            document.getElementById('dev').textContent = state.dev;
+            document.getElementById('idea').textContent = state.idea;
+            document.getElementById('hair').textContent = state.hair;
+            
+            document.getElementById('boss-bar').style.width = state.boss + '%';
+            document.getElementById('dev-bar').style.width = state.dev + '%';
+            document.getElementById('idea-bar').style.width = state.idea + '%';
+            document.getElementById('hair-bar').style.width = state.hair + '%';
         }
-    ];
 
-    // 更新UI
-    function updateUI() {
-        document.getElementById('val-boss').innerText = state.boss;
-        document.getElementById('val-dev').innerText = state.dev;
-        document.getElementById('val-idea').innerText = state.idea;
-        document.getElementById('val-hair').innerText = state.hair;
-
-        updateBar('boss', state.boss, '#3498db');
-        updateBar('dev', state.dev, '#9b59b6');
-        updateBar('idea', state.idea, '#f1c40f');
-        updateBar('hair', state.hair, '#2ecc71');
-    }
-
-    function updateBar(id, value, color) {
-        const bar = document.getElementById('bar-' + id);
-        bar.style.width = Math.max(0, value) + '%';
-        bar.style.background = color;
-        
-        // 危险时变红
-        if (value <= 20 && id !== 'hair') {
-            bar.style.background = '#e74c3c';
+        function startGame() {
+            state = { boss: 50, dev: 50, idea: 60, hair: 100 };
+            updateStats();
+            showScenario(0);
         }
-        if (id === 'hair' && value <= 30) {
-             bar.style.background = '#e74c3c';
+
+        function showScenario(index) {
+            const scenario = scenarios[index];
+            document.getElementById('story').innerHTML = scenario.text;
+            
+            const choicesDiv = document.getElementById('choices');
+            choicesDiv.innerHTML = '';
+            
+            scenario.choices.forEach((choice) => {
+                const button = document.createElement('button');
+                button.className = 'choice';
+                button.textContent = choice.text;
+                button.onclick = () => makeChoice(choice, index);
+                choicesDiv.appendChild(button);
+            });
         }
-    }
 
-    // 渲染场景
-    function renderScene(sceneId) {
-        if (state.isEnded) return;
-        const scene = scenarios.find(s => s.id === sceneId);
-        
-        if (!scene) { console.error("场景未找到"); return; }
-
-        state.day = scene.day;
-
-        const textEl = document.getElementById('story-text');
-        // 显示日期和文本
-        textEl.innerHTML = `<span style="color:#888;font-size:0.9rem">【${scene.day}】</span><br><br>${scene.text.replace(/\n/g, '<br>')}`;
-        
-        window.scrollTo(0, 0);
-
-        const choicesEl = document.getElementById('choices');
-        choicesEl.innerHTML = '';
-
-        scene.choices.forEach((choice) => {
-            const btn = document.createElement('button');
-            btn.innerText = choice.text;
-            btn.onclick = () => makeChoice(choice);
-            choicesEl.appendChild(btn);
-        });
-    }
-
-    // 做出选择
-    function makeChoice(choice) {
-        // 应用效果
-        if(choice.effect) {
+        function makeChoice(choice, currentIndex) {
+            // 应用效果
             state.boss += choice.effect.boss || 0;
             state.dev += choice.effect.dev || 0;
             state.idea += choice.effect.idea || 0;
             state.hair += choice.effect.hair || 0;
-        }
-
-        // 限制范围 0-100
-        state.boss = Math.max(0, Math.min(100, state.boss));
-        state.dev = Math.max(0, Math.min(100, state.dev));
-        state.idea = Math.max(0, Math.min(100, state.idea));
-        state.hair = Math.max(0, Math.min(100, state.hair));
-
-        // 显示日志
-        const logEl = document.getElementById('event-log');
-        if(choice.log) {
-            logEl.innerHTML = "⚡ " + choice.log;
-        } else {
-            logEl.innerHTML = "...";
-        }
-
-        updateUI();
-
-        // 检查中途死亡/失败
-        if (state.hair <= 0) { endGame("猝死"); return; }
-        if (state.dev <= 0) { endGame("被杀"); return; }
-        if (state.boss <= 0 && state.day !== "最终审判") { endGame("被辞退"); return; }
-
-        // 跳转
-        if (choice.next === "end") {
-            calculateEnding();
-        } else {
-            // 找到下一个ID，这里简单处理为当前场景索引+1
-            const currentIndex = scenarios.findIndex(s => s.id === choice.effect.next || s.id === state.day); 
-            // 实际上我们是按数组顺序走的，除非choice指定了next id。
-            // 修正逻辑：我们在scenarios数组里按顺序放，这里只要找到当前scene的下一个即可
-            const currentSceneIndex = scenarios.findIndex(s => s.text === document.getElementById('story-text').innerText.split('\n')[2]); // 简单匹配不可靠
             
-            // 更安全的做法：记录当前进度
-            // 这里简化处理：choice里没有存next id，我们就默认走scenarios数组的下一项
-            // 但为了逻辑严谨，最好给每个choice加上next。上面数据里没有全加，这里兼容一下。
+            // 限制范围
+            state.boss = Math.max(0, Math.min(100, state.boss));
+            state.dev = Math.max(0, Math.min(100, state.dev));
+            state.idea = Math.max(0, Math.min(100, state.idea));
+            state.hair = Math.max(0, Math.min(100, state.hair));
             
-            const currentId = scenarios.find(s => s.day === state.day).id;
-            const nextIndex = scenarios.findIndex(s => s.id === currentId) + 1;
+            updateStats();
             
-            if(nextIndex < scenarios.length) {
-                renderScene(scenarios[nextIndex].id);
+            // 检查游戏结束条件
+            if (state.hair <= 0) {
+                endGame("你的发际线归零了，在凌晨4点的会议室倒下");
+                return;
+            }
+            
+            // 显示下一个场景
+            if (currentIndex < scenarios.length - 1) {
+                showScenario(currentIndex + 1);
             } else {
                 calculateEnding();
             }
         }
-    }
 
-    // 结局计算
-    function calculateEnding() {
-        state.isEnded = true;
-        let title = "";
-        let desc = "";
-        
-        // 综合评分逻辑
-        const totalScore = state.boss + state.dev + state.idea + state.hair;
+        function calculateEnding() {
+            let title = "";
+            let desc = "";
+            
+            if (state.hair <= 10) {
+                title = "💀 【结局：聪明绝顶】";
+                desc = "你的发际线已经退到了后脑勺。虽然你成了公司的技术总监，但你也失去了作为年轻人的最后一点尊严。建议植发。";
+            } else if (state.boss >= 80 && state.dev >= 70 && state.idea >= 70) {
+                title = "🏆 【结局：职场大满贯】";
+                desc = "不可思议！你竟然在取悦老板、安抚程序猿和保持创意之间找到了完美的平衡点。你升职为产品VP，并保住了头发。你是神吗？";
+            } else if (state.boss >= 80 && state.idea >= 60) {
+                title = "👔 【结局：老板的左膀右臂】";
+                desc = "老板非常赏识你，把你提拔为合伙人。虽然程序员们看到你就翻白眼，但谁在乎呢？你有钱了。";
+            } else if (state.dev >= 80) {
+                title = "💻 【结局：程序员之友】";
+                desc = "你太懂技术了，导致程序员们甚至想拉你转岗做开发。你虽然不怎么受老板待见，但在组里人缘极好，每天摸鱼也很快乐。";
+            } else if (state.idea >= 80) {
+                title = "🎨 【结局：孤独的艺术家】";
+                desc = "你坚持了自己的创意审美，虽然数据不好看，但你的App获得了\"年度设计奖\"。老板把你开了，但你很快去了设计公司。";
+            } else if (state.boss + state.dev + state.idea < 150) {
+                title = "🗑️ 【结局：职场耗材】";
+                desc = "你在这个项目中耗尽了心力，却一事无成。老板不满意，同事不喜欢，创意也没了。HR正在给你办离职手续，记得拿N+1。";
+            } else {
+                title = "🤷 【结局：普通的大多数】";
+                desc = "你平平安安地混过了试用期，没有大功也没有大过。日子一天天过去，你依然是那个默默无闻的小策划。这或许也是一种幸福？";
+            }
 
-        if (state.hair <= 10) {
-            title = "💀 【结局：聪明绝顶】";
-            desc = "你的发际线已经退到了后脑勺。虽然你成了公司的技术总监，但你也失去了作为年轻人的最后一点尊严。建议植发。";
-        } else if (state.boss >= 80 && state.dev >= 70 && state.idea >= 70) {
-            title = "🏆 【结局：职场大满贯】";
-            desc = "不可思议！你竟然在取悦老板、安抚程序猿和保持创意之间找到了完美的平衡点。你升职为产品VP，并保住了头发。你是神吗？";
-        } else if (state.boss >= 80 && state.idea >= 60) {
-            title = "👔 【结局：老板的左膀右臂】";
-            desc = "老板非常赏识你，把你提拔为合伙人。虽然程序员们看到你就翻白眼，但谁在乎呢？你有钱了。";
-        } else if (state.dev >= 80) {
-            title = "💻 【结局：程序员之友】";
-            desc = "你太懂技术了，导致程序员们甚至想拉你转岗做开发。你虽然不怎么受老板待见，但在组里人缘极好，每天摸鱼也很快乐。";
-        } else if (state.idea >= 80) {
-            title = "🎨 【结局：孤独的艺术家】";
-            desc = "你坚持了自己的创意审美，虽然数据不好看，但你的App获得了“年度设计奖”。老板把你开了，但你很快去了设计公司。";
-        } else if (totalScore < 150) {
-            title = "🗑️ 【结局：职场耗材】";
-            desc = "你在这个项目中耗尽了心力，却一事无成。老板不满意，同事不喜欢，创意也没了。HR正在给你办离职手续，记得拿N+1。";
-        } else {
-            title = "🤷 【结局：普通的大多数】";
-            desc = "你平平安安地混过了试用期，没有大功也没有大过。日子一天天过去，你依然是那个默默无闻的小策划。这或许也是一种幸福？";
+            document.getElementById('story').innerHTML = `<div class="ending"><h2>${title}</h2><p>${desc}</p><p style="font-size: 14px; margin-top: 15px;">最终属性：老板${state.boss} / 程序${state.dev} / 创意${state.idea} / 发际线${state.hair}</p></div>`;
+            
+            document.getElementById('choices').innerHTML = 
+                '<button class="choice" onclick="startGame()">再活一次</button>';
         }
 
-        const textEl = document.getElementById('story-text');
-        textEl.innerHTML = `<div class="ending-box"><div class="ending-title">${title}</div><br>${desc}<br><br><div style="font-size:0.8rem; color:#666">最终属性：老板${state.boss} / 程序${state.dev} / 创意${state.idea} / 发际线${state.hair}</div></div>`;
-        
-        const choicesEl = document.getElementById('choices');
-        choicesEl.innerHTML = '<button onclick="location.reload()">再活一次</button>';
-    }
-
-    function endGame(type) {
-        state.isEnded = true;
-        const textEl = document.getElementById('story-text');
-        
-        if (type === "猝死") {
-            textEl.innerHTML = "<h2>☠️ GAME OVER</h2><br>你的发际线归零了。<br>你在凌晨4点的会议室倒下，手里还攥着第50版需求文档。<br><br>医生说：过度劳累，建议转行卖煎饼果子。";
-        } else if (type === "被杀") {
-            textEl.innerHTML = "<h2>☠️ GAME OVER</h2><br>程序员好感度归零。<br>你因为提了一个“五彩斑斓的黑且要自动变色”的需求，被愤怒的极客团队用机械键盘物理超度了。";
-        } else if (type === "被辞退") {
-            textEl.innerHTML = "<h2>☠️ GAME OVER</h2><br>老板满意度归零。<br>老板觉得你“缺乏狼性”、“没有大局观”。你的工牌被收走，抱着箱子离开了大楼。";
+        function endGame(message) {
+            document.getElementById('story').innerHTML = `<div class="ending"><h2>游戏结束</h2><p>${message}</p></div>`;
+            document.getElementById('choices').innerHTML = 
+                '<button class="choice" onclick="startGame()">重新开始</button>';
         }
-        
-        const choicesEl = document.getElementById('choices');
-        choicesEl.innerHTML = '<button onclick="location.reload()">重头再来</button>';
-    }
 
-    function startGame() {
-        state = { boss: 50, dev: 50, idea: 60, hair: 100, day: 0, isEnded: false };
-        document.getElementById('event-log').innerText = "职场第一天，保持微笑。";
-        updateUI();
-        renderScene(1);
-    }
-
-    // 初始化
-    updateUI();
-</script>
-
+        // 初始化
+        updateStats();
+    </script>
 </body>
 </html>
