@@ -2,11 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 强化移动端适配meta -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 移动端核心适配：解决手机端显示/点击问题 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no, email=no">
     <title>策划生存指南：从入职到背锅</title>
     <style>
         * {
@@ -14,18 +14,19 @@
             padding: 0;
             box-sizing: border-box;
             font-family: "Microsoft YaHei", sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
         }
 
         html, body {
             width: 100%;
+            height: 100%;
             min-height: 100vh;
             background: #1a1a1a;
             color: #fff;
             padding: 10px;
             line-height: 1.5;
             overflow-x: hidden;
-            touch-action: manipulation; /* 禁用移动端默认的双击缩放等行为 */
+            touch-action: manipulation; /* 禁用移动端双击缩放等干扰行为 */
         }
 
         .game-box {
@@ -35,8 +36,11 @@
             box-shadow: 0 0 30px rgba(0,0,0,0.7);
             border: 1px solid #444;
             max-width: 500px;
-            margin: 0 auto;
             width: 100%; /* 强制适配手机宽度 */
+            margin: 0 auto;
+            min-height: calc(100vh - 20px); /* 占满手机屏幕 */
+            display: flex;
+            flex-direction: column;
         }
 
         .title {
@@ -89,6 +93,11 @@
             border-radius: 10px;
             border: 1px solid #444;
             line-height: 1.6;
+            flex-shrink: 0; /* 防止剧情区被压缩 */
+        }
+
+        .options {
+            flex-grow: 1; /* 选项区自适应剩余空间 */
         }
 
         .options button {
@@ -108,6 +117,7 @@
             appearance: none;
         }
 
+        /* 移动端点击反馈 */
         .options button:active {
             background: #5392ff;
             transform: scale(0.98);
@@ -157,6 +167,10 @@
             display: inline-block;
         }
 
+        .item-click:active {
+            background: rgba(255,204,0,0.2);
+        }
+
         .tip {
             color: #aaa;
             font-size: 11px;
@@ -197,14 +211,14 @@
     </div>
 
     <script>
-        // 游戏核心数据
+        // 游戏核心数据（初始化正确）
         let gameData = {
             idea: 10, coder: 10, boss: 10, test:10, oper:10,
             stage: 0, achievements: [],
             coffee: 1, guoka: 1, peace: 1
         };
 
-        // ========== 道具使用（移除音频播放） ==========
+        // ========== 道具使用逻辑（无音频，避免跨域问题） ==========
         function useCoffee() {
             if(gameData.coffee <= 0) { 
                 alert("☕ 咖啡用完啦！"); 
@@ -398,9 +412,9 @@
             }
         }
 
-        // ========== UI更新核心函数 ==========
+        // ========== UI更新核心函数（适配移动端） ==========
         function updateUI() {
-            // 更新数值显示
+            // 更新数值显示（修复道具初始显示错误）
             document.getElementById("idea").innerText = gameData.idea;
             document.getElementById("coder").innerText = gameData.coder;
             document.getElementById("boss").innerText = gameData.boss;
@@ -422,14 +436,15 @@
             let optDom = document.getElementById("options");
             optDom.innerHTML = "";
 
-            // 渲染选项按钮（适配移动端点击）
+            // 渲染选项按钮（同时绑定click和touchend，适配移动端）
             current.options.forEach((opt, index) => {
                 let btn = document.createElement("button");
                 btn.innerText = opt.text;
-                // 同时绑定click和touchend事件，确保手机端点击有效
+                // 点击事件（PC+手机通用）
                 btn.addEventListener('click', () => chooseOption(index));
+                // 触摸事件（专门适配手机）
                 btn.addEventListener('touchend', (e) => {
-                    e.preventDefault(); // 阻止默认触摸行为
+                    e.preventDefault(); // 阻止默认触摸行为（避免双击缩放）
                     chooseOption(index);
                 });
                 optDom.appendChild(btn);
@@ -441,7 +456,7 @@
             let current = storyData[gameData.stage];
             let opt = current.options[index];
 
-            // 更新数值（加边界保护）
+            // 更新数值（加边界保护，防止负数/超限）
             gameData.idea = Math.max(0, Math.min(30, (gameData.idea + (opt.effect.idea || 0))));
             gameData.coder = Math.max(0, Math.min(30, (gameData.coder + (opt.effect.coder || 0))));
             gameData.boss = Math.max(0, Math.min(30, (gameData.boss + (opt.effect.boss || 0))));
@@ -473,6 +488,7 @@
             }
             document.getElementById("achievement").innerHTML = "";
             document.getElementById("story").innerHTML = `<div class="ending" style="color:${end.color}">${end.text}</div>`;
+            
             // 重新开始按钮（适配移动端）
             let restartBtn = document.createElement("button");
             restartBtn.className = "restart";
@@ -482,6 +498,7 @@
                 e.preventDefault();
                 restart();
             });
+            
             document.getElementById("options").innerHTML = "";
             document.getElementById("options").appendChild(restartBtn);
         }
@@ -496,7 +513,7 @@
             updateUI();
         }
 
-        // ========== 初始化游戏（DOM加载完成后执行） ==========
+        // ========== 初始化游戏（DOM加载完成后执行，避免移动端加载问题） ==========
         document.addEventListener('DOMContentLoaded', function() {
             updateUI();
         });
