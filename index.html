@@ -2,452 +2,164 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>许愿星 - 遇见美好</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- 引入 Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <style>
-        :root {
-            --primary-color: #ff7eb9;
-            --secondary-color: #ff758c;
-            --bg-color: #fff0f6;
-            --text-color: #333;
-            --white: #ffffff;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); padding-bottom: 70px; }
-        
-        .header { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: var(--white); padding: 20px 15px 40px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; text-align: center; position: relative; box-shadow: 0 4px 15px rgba(255, 126, 185, 0.3); }
-        .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
-        .header p { font-size: 12px; opacity: 0.9; }
-        .user-info { position: absolute; top: 15px; right: 15px; font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-        
-        .container { padding: 0 15px; margin-top: -25px; }
-        .fab-btn { position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 4px 10px rgba(255, 117, 140, 0.4); cursor: pointer; z-index: 100; transition: transform 0.2s; }
-        .fab-btn:active { transform: scale(0.95); }
-        
-        .wish-card { background: var(--white); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
-        .wish-card.vip-blur { filter: blur(4px); user-select: none; pointer-events: none; }
-        .wish-header { display: flex; align-items: center; margin-bottom: 10px; }
-        .avatar { width: 36px; height: 36px; border-radius: 50%; background-color: #ddd; margin-right: 10px; background-size: cover; }
-        .user-name { font-weight: 600; font-size: 14px; }
-        .time { font-size: 10px; color: #999; margin-left: auto; }
-        .wish-content { font-size: 15px; line-height: 1.5; color: #444; margin-bottom: 10px; }
-        .wish-actions { display: flex; justify-content: space-between; margin-top: 10px; color: #999; font-size: 12px; }
-        .action-item { display: flex; align-items: center; gap: 4px; cursor: pointer; }
-        .action-item.liked { color: var(--secondary-color); }
-        
-        .vip-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; backdrop-filter: blur(2px); }
-        .vip-icon { font-size: 30px; color: #ffd700; margin-bottom: 8px; }
-        .vip-text { font-size: 14px; font-weight: bold; color: var(--secondary-color); }
-        .vip-btn { margin-top: 8px; padding: 4px 12px; background: var(--secondary-color); color: white; border: none; border-radius: 12px; font-size: 12px; cursor: pointer; }
-        
-        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: var(--white); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 99; }
-        .tab-item { display: flex; flex-direction: column; align-items: center; color: #999; font-size: 10px; cursor: pointer; }
-        .tab-item.active { color: var(--primary-color); }
-        .tab-item i { font-size: 20px; margin-bottom: 4px; }
-        
-        /* Modal Styles */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: white; width: 85%; max-width: 320px; padding: 25px; border-radius: 20px; text-align: center; animation: popIn 0.3s ease; position: relative; }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; outline: none; font-size: 14px; }
-        .modal-btn { background: var(--primary-color); color: white; border: none; padding: 12px 20px; border-radius: 25px; width: 100%; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 5px; }
-        .modal-btn.secondary { background: #f0f0f0; color: #666; margin-top: 10px; }
-        .modal-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 20px; color: #999; cursor: pointer; }
-        .auth-switch { margin-top: 15px; font-size: 12px; color: #666; cursor: pointer; text-decoration: underline; }
-        .loading-spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; margin-right: 5px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .my-page-content { display: none; padding: 20px; text-align: center; }
-        .my-page-content.active { display: block; }
-        .logout-btn { background: #ff4d4f; color: white; border: none; padding: 10px 20px; border-radius: 20px; margin-top: 20px; cursor: pointer; }
-    </style>
+    <!-- 引入自定义样式 -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
+    <!-- Header -->
     <div class="header">
-        <div class="user-info" id="userInfo" onclick="switchToMyTab()">
+        <div class="user-info" id="userInfo">
             <i class="fas fa-user-circle"></i> <span id="userNameDisplay">游客</span>
         </div>
         <h1>✨ 许愿星</h1>
         <p>写下你的愿望，让宇宙听见</p>
     </div>
 
-    <!-- 首页内容 -->
+    <!-- Views -->
+    <!-- 首页 -->
     <div class="container" id="home-view">
-        <div class="loading" style="text-align:center; padding:20px; color:#999;">正在加载愿望...</div>
+        <div class="loading">正在加载愿望...</div>
     </div>
 
-    <!-- 我的页面内容 (默认隐藏) -->
-    <div class="container my-page-content" id="my-view">
-        <div style="background:white; padding:20px; border-radius:15px; margin-top:20px;">
-            <div style="width:60px; height:60px; background:#ddd; border-radius:50%; margin:0 auto 10px; background-size:cover;" id="myAvatar"></div>
-            <h3 id="myUsername">未登录</h3>
-            <p style="color:#999; font-size:12px; margin-top:5px;" id="myEmail"></p>
-            <button class="logout-btn" id="logoutBtn" style="display:none;">退出登录</button>
-            <p id="loginPrompt" style="margin-top:20px; color:#666;">登录后可以发布专属愿望哦~</p>
-            <button class="modal-btn" id="goLoginBtn" style="max-width:200px; margin:10px auto; display:none;">去登录 / 注册</button>
+    <!-- 发现视图 (随机许愿) -->
+    <div id="discover-view" class="view-container" style="display:none; padding: 20px;">
+        <div style="text-align:center; margin-top: 40px;">
+            <h2 style="margin-bottom: 10px; color: #ffecd2;">🔮 宇宙指引</h2>
+            <p style="color: #aaa; margin-bottom: 30px;">点击卡片，接收来自宇宙的随机愿望</p>
+            
+            <!-- 随机卡片容器 -->
+            <div id="randomCard" class="wish-card" style="max-width: 350px; margin: 0 auto; cursor: pointer; transition: transform 0.3s; position: relative; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <!-- 默认状态 -->
+                <div id="randomPlaceholder">
+                    <i class="fas fa-star" style="font-size: 50px; color: var(--accent-color); margin-bottom: 20px;"></i>
+                    <p>点击抽取</p>
+                </div>
+                
+                <!-- 内容状态 (JS 控制显示) -->
+                <div id="randomContent" style="display:none; width: 100%;">
+                    <h4 id="randomUser" style="color: var(--accent-color); margin-bottom: 10px;"></h4>
+                    <p id="randomText" style="font-size: 1.1rem; line-height: 1.6; color: #fff;"></p>
+                    <div class="wish-meta" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                        <span id="randomDate"></span>
+                    </div>
+                </div>
+            </div>
+
+            <button id="drawAgainBtn" class="modal-btn" style="max-width: 200px; margin-top: 30px; background: linear-gradient(45deg, #ff9a9e, #fad0c4); color: #333;">
+                🔄 再抽一次
+            </button>
         </div>
-        <div style="margin-top:30px; text-align:left;">
-            <h4>我的愿望</h4>
-            <div id="myWishList" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- ✅ 修复后的：我的视图 (只有一套代码，结构清晰) -->
+    <div id="my-view" class="view-container" style="display:none;">
+        
+        <!-- ✅ 修复后的：个人资料编辑区 -->
+<div id="profileSection" style="
+    padding: 25px; 
+    background: #fff; 
+    border-radius: 12px; 
+    margin: 20px auto; /* 上下20px，左右自动居中 */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* 更柔和的阴影 */
+    max-width: 400px; /* 🔑 关键：限制最大宽度 */
+    width: 90%; /* 在小屏幕上保持一定边距 */
+">
+    <h3 style="margin-top:0; color:#333; text-align:center;">个人资料</h3>
+    
+    <!-- 头像展示 -->
+    <div style="text-align:center; margin-bottom: 20px;">
+        <div id="myAvatar" style="width:80px;height:80px;background:#f0f0f0;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;overflow:hidden; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <i class="fas fa-user" style="font-size:40px;color:#ccc;"></i>
+        </div>
+        <div id="avatarPreview" style="margin-top:8px; font-size:13px; color:#666;"></div>
+    </div>
+    
+    <!-- 表单输入 -->
+    <div style="margin-bottom:15px;">
+        <label style="display:block;margin-bottom:8px;font-weight:600;font-size:14px;color:#555;">昵称</label>
+        <input type="text" id="profileUsernameInput" placeholder="输入你的昵称" style="width:100%;padding:12px;border:1px solid #e0e0e0;border-radius:8px;box-sizing:border-box; font-size: 15px; transition: border-color 0.3s;" onfocus="this.style.borderColor='#6a11cb'" onblur="this.style.borderColor='#e0e0e0'">
+    </div>
+
+    <div style="margin-bottom:20px;">
+        <label style="display:block;margin-bottom:8px;font-weight:600;font-size:14px;color:#555;">更换头像</label>
+        <input type="file" id="avatarFileInput" accept="image/*" style="width:100%; font-size:14px; color:#666;">
+    </div>
+
+    <!-- 保存按钮 -->
+    <button id="saveProfileBtn" style="width:100%;padding:14px;background:linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);color:white;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer; box-shadow: 0 4px 10px rgba(106, 17, 203, 0.3); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 15px rgba(106, 17, 203, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 10px rgba(106, 17, 203, 0.3)'">
+        保存修改
+    </button>
+</div>
+
+
+
+
+        <!-- 2. 我的愿望列表区 (唯一的 id="myWishList") -->
+        <h3 style="color:#333; border-top:1px solid #eee; padding-top:20px;">我的愿望</h3>
+        <div id="myWishList" style="margin-top:15px; min-height: 100px;">
+            <!-- 愿望卡片将在这里渲染，或未登录时显示登录引导 -->
+            <p style="text-align:center; color:#999; padding:20px;">加载中...</p>
+        </div>
+        
+        <!-- 3. 退出按钮 (唯一的 id="logoutBtn") -->
+        <div style="margin-top: 40px; padding-bottom: 30px; text-align: center;">
+            <button id="logoutBtn" style="
+                background-color: #ff4757; 
+                color: white; 
+                border: none; 
+                padding: 12px 30px; 
+                border-radius: 25px; 
+                font-size: 16px; 
+                cursor: pointer;
+                box-shadow: 0 4px 6px rgba(255, 71, 87, 0.3);
+                transition: transform 0.2s;
+            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <i class="fas fa-sign-out-alt"></i> 退出登录
+            </button>
         </div>
     </div>
+    <!-- ⚠️ 注意：之前代码中 #my-view 后面还有一大堆重复的 HTML，已全部删除！ -->
 
-    <div class="fab-btn" id="fabButton">
-        <i class="fas fa-plus"></i>
-    </div>
-
+    <!-- Buttons & Bars -->
+    <div class="fab-btn" id="fabButton"><i class="fas fa-plus"></i></div>
+    
     <div class="tab-bar">
         <div class="tab-item active" data-tab="home"><i class="fas fa-home"></i><span>首页</span></div>
         <div class="tab-item" data-tab="discover"><i class="fas fa-compass"></i><span>发现</span></div>
         <div class="tab-item" data-tab="msg"><i class="fas fa-comment-dots"></i><span>消息</span></div>
-        <div class="tab-item" data-tab="my" onclick="switchToMyTab()"><i class="fas fa-user"></i><span>我的</span></div>
+        <div class="tab-item" data-tab="my"><i class="fas fa-user"></i><span>我的</span></div>
     </div>
 
-    <!-- 发布愿望弹窗 -->
+    <!-- Modals -->
     <div class="modal" id="publishModal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closePublishModal()">&times;</span>
+            <span class="close-modal">&times;</span>
             <h3>✨ 许个愿吧</h3>
-            <input type="text" id="usernameInput" class="modal-input" placeholder="昵称 (可选，默认用邮箱前缀)">
-            <textarea class="modal-input" id="wishInput" rows="4" placeholder="在这里写下你的愿望..."></textarea>
-            <button class="modal-btn" id="addWishBtn">发布愿望</button>
+            <input type="text" id="usernameInput" class="modal-input" placeholder="昵称 (可选)">
+            <textarea class="modal-input" id="wishInput" rows="4" placeholder="写下愿望..."></textarea>
+            <button class="modal-btn" id="addWishBtn">发布</button>
         </div>
     </div>
 
-    <!-- 登录/注册弹窗 -->
     <div class="modal" id="authModal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeAuthModal()">&times;</span>
-            <h3 id="authTitle">登录 / 注册</h3>
-            <p style="font-size:12px; color:#666; margin-bottom:15px;">使用邮箱接收魔法链接，一键免密登录</p>
-            
-            <input type="email" id="emailInput" class="modal-input" placeholder="请输入邮箱地址">
-            <input type="password" id="passwordInput" class="modal-input" placeholder="密码 (可选)" style="display:none;">
-            
+            <span class="close-modal">&times;</span>
+            <h3>登录 / 注册</h3>
+            <input type="email" id="emailInput" class="modal-input" placeholder="邮箱">
+            <input type="password" id="passwordInput" class="modal-input" placeholder="密码" style="display:none;">
             <button class="modal-btn" id="authActionBtn">发送魔法链接</button>
-            <button class="modal-btn secondary" id="toggleAuthModeBtn">切换到密码登录</button>
-            
-            <p id="authMessage" style="font-size:12px; margin-top:15px; color:#666;"></p>
+            <button class="modal-btn secondary" id="toggleAuthModeBtn">切换模式</button>
+            <p id="authMessage" style="font-size:12px; margin-top:10px; color:#666;"></p>
         </div>
     </div>
 
-    <script>
-        // ================= ⚠️ 配置区域 ⚠️ =================
-         // 1. 填入你的 Project URL (例如: https://xxxxx.supabase.co)
-        const SUPABASE_URL = 'https://nbiiazenwummrunqntlt.supabase.co'; 
-        
-        // 2. 填入你的 Publishable Key (以 sb_publishable_ 开头的那串长字符)
-        const SUPABASE_KEY = 'sb_publishable_S4L95iYE8AUhMHeZQKNkkA_1sQDQKDO'; 
-        // =================================================
+    <!-- 引入入口文件 app.js -->
+    <script type="module" src="js/app.js"></script>
 
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        let currentUser = null;
-        let isPasswordMode = false;
-
-        document.addEventListener('DOMContentLoaded', async function() {
-            // 1. 检查本地会话
-            const { data: { session } } = await _supabase.auth.getSession();
-            handleAuthState(session?.user || null);
-
-            // 2. 监听 auth 变化 (比如从邮件回来)
-            _supabase.auth.onAuthStateChange((event, session) => {
-                handleAuthState(session?.user || null);
-            });
-
-            // 3. 加载首页数据
-            loadWishes();
-
-            // 绑定事件
-            document.getElementById('fabButton').addEventListener('click', checkAuthAndPublish);
-            document.getElementById('addWishBtn').addEventListener('click', addWish);
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-            document.getElementById('goLoginBtn').addEventListener('click', openAuthModal);
-            document.getElementById('authActionBtn').addEventListener('click', handleAuthAction);
-            document.getElementById('toggleAuthModeBtn').addEventListener('click', toggleAuthMode);
-            
-            // Tab 切换逻辑
-            document.querySelectorAll('.tab-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    if(this.dataset.tab === 'my') return; // My tab handled separately
-                    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    document.getElementById('home-view').style.display = 'block';
-                    document.getElementById('my-view').classList.remove('active');
-                    if(this.dataset.tab !== 'home') {
-                        alert('这个功能还在开发中哦~');
-                        switchToMyTab(); // 暂时跳回我的或者首页
-                    }
-                });
-            });
-        });
-
-        // --- 认证逻辑 ---
-
-        function handleAuthState(user) {
-            currentUser = user;
-            const nameDisplay = document.getElementById('userNameDisplay');
-            const myUsername = document.getElementById('myUsername');
-            const myEmail = document.getElementById('myEmail');
-            const myAvatar = document.getElementById('myAvatar');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const loginPrompt = document.getElementById('loginPrompt');
-            const goLoginBtn = document.getElementById('goLoginBtn');
-
-            if (user) {
-                const emailPrefix = user.email.split('@')[0];
-                const displayName = user.user_metadata?.nickname || emailPrefix;
-                
-                nameDisplay.innerText = displayName;
-                myUsername.innerText = displayName;
-                myEmail.innerText = user.email;
-                myAvatar.style.backgroundImage = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
-                
-                logoutBtn.style.display = 'inline-block';
-                loginPrompt.style.display = 'none';
-                goLoginBtn.style.display = 'none';
-                
-                // 加载该用户的愿望
-                loadUserWishes(user.id);
-            } else {
-                nameDisplay.innerText = '游客';
-                myUsername.innerText = '未登录';
-                myEmail.innerText = '';
-                myAvatar.style.backgroundImage = '';
-                
-                logoutBtn.style.display = 'none';
-                loginPrompt.style.display = 'block';
-                goLoginBtn.style.display = 'inline-block';
-                
-                document.getElementById('myWishList').innerHTML = '<p style="color:#999;font-size:12px;">登录后查看</p>';
-            }
-        }
-
-        function checkAuthAndPublish() {
-            if (!currentUser) {
-                openAuthModal();
-            } else {
-                openPublishModal();
-            }
-        }
-
-        function openAuthModal() {
-            document.getElementById('authModal').style.display = 'flex';
-            document.getElementById('authMessage').innerText = '';
-        }
-        function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
-
-        function toggleAuthMode() {
-            isPasswordMode = !isPasswordMode;
-            const pwdInput = document.getElementById('passwordInput');
-            const actionBtn = document.getElementById('authActionBtn');
-            const toggleBtn = document.getElementById('toggleAuthModeBtn');
-            const title = document.getElementById('authTitle');
-
-            if (isPasswordMode) {
-                pwdInput.style.display = 'block';
-                actionBtn.innerText = '登录 / 注册';
-                toggleBtn.innerText = '切换回魔法链接';
-                title.innerText = '密码登录';
-            } else {
-                pwdInput.style.display = 'none';
-                actionBtn.innerText = '发送魔法链接';
-                toggleBtn.innerText = '切换到密码登录';
-                title.innerText = '魔法链接登录';
-            }
-        }
-
-        async function handleAuthAction() {
-            const email = document.getElementById('emailInput').value.trim();
-            const password = document.getElementById('passwordInput').value;
-            const msgEl = document.getElementById('authMessage');
-            const btn = document.getElementById('authActionBtn');
-
-            if (!email) { msgEl.innerText = '请输入邮箱'; return; }
-            
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading-spinner"></span> 处理中...';
-
-            try {
-                if (isPasswordMode) {
-                    if (!password) { msgEl.innerText = '请输入密码'; btn.disabled = false; return; }
-                    // 尝试登录，如果失败则尝试注册 (简化逻辑，实际项目应分开)
-                    let { error } = await _supabase.auth.signInWithPassword({ email, password });
-                    if (error) {
-                        // 如果是用户不存在，尝试注册
-                        if (error.message.includes('Invalid login credentials')) {
-                             const { error: regError } = await _supabase.auth.signUp({ email, password });
-                             if (regError) throw regError;
-                             msgEl.innerText = '注册成功！请检查邮箱验证（如需）或直接登录。';
-                        } else {
-                            throw error;
-                        }
-                    } else {
-                        msgEl.innerText = '登录成功！';
-                        setTimeout(closeAuthModal, 1000);
-                    }
-                } else {
-                    // 魔法链接
-                    const { error } = await _supabase.auth.signInWithOtp({ email });
-                    if (error) throw error;
-                    msgEl.innerText = '魔法链接已发送！请检查邮箱 (包括垃圾邮件)。';
-                }
-            } catch (err) {
-                msgEl.innerText = '错误: ' + err.message;
-                console.error(err);
-            } finally {
-                btn.disabled = false;
-                if(!isPasswordMode) btn.innerText = '发送魔法链接';
-                else btn.innerText = '登录 / 注册';
-            }
-        }
-
-        async function logout() {
-            await _supabase.auth.signOut();
-            alert('已退出登录');
-            window.location.reload();
-        }
-
-        // --- 业务逻辑 ---
-
-        async function loadWishes() {
-            const container = document.getElementById('home-view');
-            container.innerHTML = '<div class="loading">正在加载愿望...</div>';
-            
-            const { data, error } = await _supabase.from('wishes').select('*').order('created_at', { ascending: false });
-            
-            if (error) {
-                container.innerHTML = `<div class="loading" style="color:red">加载失败:<br>${error.message}</div>`;
-                return;
-            }
-            renderWishes(data || [], container);
-        }
-
-        async function loadUserWishes(userId) {
-            const container = document.getElementById('myWishList');
-            const { data, error } = await _supabase.from('wishes')
-                .select('*')
-                .eq('user_id', userId) // 假设表里有 user_id 字段
-                .order('created_at', { ascending: false });
-            
-            if (error || !data) {
-                container.innerHTML = '<p style="color:#999">暂无愿望</p>';
-                return;
-            }
-            renderWishes(data, container, false); // 不显示VIP模糊逻辑简化
-        }
-
-        function renderWishes(wishes, container, enableVip = true) {
-            container.innerHTML = '';
-            if (wishes.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">还没有愿望</div>';
-                return;
-            }
-
-            wishes.forEach(wish => {
-                const card = document.createElement('div');
-                card.className = 'wish-card';
-                const isVip = enableVip && wish.content && wish.content.includes('秘密');
-                if (isVip) card.classList.add('vip-blur');
-
-                const vipMask = isVip ? `
-                    <div class="vip-mask">
-                        <i class="fas fa-crown vip-icon"></i>
-                        <div class="vip-text">会员专享</div>
-                    </div>` : '';
-
-                const seed = wish.username || wish.email_part || 'Anon';
-                const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`;
-                
-                const date = new Date(wish.created_at);
-                const timeStr = `${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}`;
-
-                card.innerHTML = `
-                    <div class="wish-header">
-                        <div class="avatar" style="background-image:url('${avatarUrl}')"></div>
-                        <div class="user-name">${wish.username || '匿名'}</div>
-                        <div class="time">${timeStr}</div>
-                    </div>
-                    <div class="wish-content">${wish.content}</div>
-                    ${vipMask}
-                    <div class="wish-actions">
-                        <div class="action-item"><i class="far fa-heart"></i> ${wish.likes||0}</div>
-                        <div class="action-item"><i class="far fa-comment"></i> 评论</div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        async function addWish() {
-            if (!currentUser) { alert('请先登录'); return; }
-            
-            const customName = document.getElementById('usernameInput').value.trim();
-            const text = document.getElementById('wishInput').value.trim();
-            
-            if (!text) { alert('写点啥吧~'); return; }
-
-            const btn = document.getElementById('addWishBtn');
-            const originalText = btn.innerText;
-            btn.innerText = '发布中...';
-            btn.disabled = true;
-
-            // 构造数据
-            const newWish = {
-                content: text,
-                username: customName || currentUser.email.split('@')[0],
-                likes: 0,
-                user_id: currentUser.id // 关联用户ID
-                // 注意：确保你的数据库表 wishes 有一个叫 user_id 的列 (uuid类型)，如果没有，去掉这行也能跑，但无法做用户隔离
-            };
-
-            const { error } = await _supabase.from('wishes').insert([newWish]);
-
-            btn.innerText = originalText;
-            btn.disabled = false;
-
-            if (error) {
-                alert('发布失败: ' + error.message);
-                // 如果报错 RLS，再次提醒用户去后台关闭 RLS
-                if (error.message.includes('row-level security')) {
-                    alert('提示：请在 Supabase 后台 Table Editor 中找到 wishes 表，关闭 RLS (Row Level Security) 开关。');
-                }
-            } else {
-                document.getElementById('wishInput').value = '';
-                closePublishModal();
-                alert('发布成功！');
-                loadWishes();
-                if(document.getElementById('my-view').classList.contains('active')) {
-                    loadUserWishes(currentUser.id);
-                }
-            }
-        }
-
-        function openPublishModal() {
-            // 预填昵称
-            if (currentUser) {
-                document.getElementById('usernameInput').value = currentUser.user_metadata?.nickname || currentUser.email.split('@')[0];
-            }
-            document.getElementById('publishModal').style.display = 'flex';
-        }
-        function closePublishModal() { document.getElementById('publishModal').style.display = 'none'; }
-        
-        function switchToMyTab() {
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.querySelector('[data-tab="my"]').classList.add('active');
-            document.getElementById('home-view').style.display = 'none';
-            document.getElementById('my-view').classList.add('active');
-            
-            if (currentUser) {
-                loadUserWishes(currentUser.id);
-            }
-        }
-    </script>
 </body>
 </html>

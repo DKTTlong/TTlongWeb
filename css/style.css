@@ -1,0 +1,367 @@
+/* css/style.css */
+
+/* --- 1. 全局重置与基础变量 --- */
+:root {
+  --primary-color: #6a11cb;
+  --secondary-color: #2575fc;
+  --accent-color: #ff9a9e;
+  --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --text-white: #ffffff;
+  --text-gray: #cccccc;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: var(--bg-gradient);
+  color: var(--text-white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  position: relative;
+  padding-bottom: 70px; /* 为底部导航栏留空间 */
+}
+
+/* 动态星空背景效果 */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: 
+    radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+    radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px);
+  background-size: 550px 550px, 350px 350px;
+  animation: starMove 100s linear infinite;
+  z-index: -1;
+  opacity: 0.6;
+}
+
+@keyframes starMove {
+  from { background-position: 0 0; }
+  to { background-position: 550px 550px; }
+}
+
+/* --- 2. 头部 Header --- */
+.header {
+  text-align: center;
+  padding: 40px 20px 20px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(5px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.header h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  background: linear-gradient(to right, #ffecd2, #fcb69f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+}
+
+.header p {
+  color: var(--text-gray);
+  font-size: 0.9rem;
+}
+
+.user-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 0.9rem;
+  color: var(--text-gray);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- 3. 主容器 Container --- */
+.container {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+}
+
+.loading {
+  text-align: center;
+  color: var(--text-gray);
+  margin-top: 50px;
+  font-style: italic;
+}
+
+/* --- 4. 底部导航栏 Tab Bar --- */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: rgba(15, 12, 41, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 100;
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #888;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.tab-item i {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.tab-item.active {
+  color: var(--accent-color);
+}
+
+.tab-item:hover {
+  color: #fff;
+}
+
+/* --- 5. 悬浮按钮 FAB --- */
+.fab-btn {
+  position: fixed;
+  bottom: 80px; /* 在导航栏上方 */
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #333;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+  cursor: pointer;
+  z-index: 1000 !important; /* ✅ 改这里！必须比 tab-bar (100) 和 modal (1000) 逻辑协调，通常 999 足够，但为了保险用 1000 并加 !important */
+  transition: transform 0.2s;
+  /* 确保它能接收点击 */
+  pointer-events: auto; 
+}
+
+.fab-btn:hover {
+  transform: scale(1.1);
+}
+
+.fab-btn:active {
+  transform: scale(0.95);
+}
+
+/* --- 6. 弹窗 Modal --- */
+.modal {
+  display: none; /* 默认隐藏，JS控制显示 */
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal.show {
+  display: flex;
+  opacity: 1;
+}
+
+.modal-content {
+  background: #24243e;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 25px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.modal.show .modal-content {
+  transform: translateY(0);
+}
+
+.close-modal {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 1.5rem;
+  color: #888;
+  cursor: pointer;
+}
+
+.close-modal:hover {
+  color: #fff;
+}
+
+.modal-content h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--accent-color);
+}
+
+/* --- 7. 表单与按钮通用样式 --- */
+.modal-input, 
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  font-size: 1rem;
+  outline: none;
+}
+
+.modal-input:focus, 
+input:focus, 
+textarea:focus {
+  border-color: var(--accent-color);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(45deg, #6a11cb, #2575fc);
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-top: 5px;
+}
+
+.modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(37, 117, 252, 0.4);
+}
+
+.modal-btn.secondary {
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  margin-top: 10px;
+}
+
+.modal-btn.secondary:hover {
+  background: rgba(255,255,255,0.1);
+  transform: none;
+}
+
+.logout-btn {
+  background: #ff4757;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* --- 8. 我的页面特定样式 --- */
+.my-page-content div[style*="background:white"] {
+  background: var(--glass-bg) !important;
+  color: white !important;
+  border: 1px solid var(--glass-border);
+}
+
+.my-page-content h3 {
+  text-align: center;
+  margin: 10px 0;
+}
+
+.my-page-content p {
+  text-align: center;
+  color: var(--text-gray);
+}
+
+#myAvatar {
+  background: linear-gradient(45deg, #ff9a9e, #fad0c4) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #333;
+}
+
+/* --- 9. 愿望列表项 (JS生成用) --- */
+.wish-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 15px;
+  animation: fadeIn 0.5s ease;
+}
+
+.wish-card h4 {
+  color: var(--accent-color);
+  margin-bottom: 5px;
+}
+
+.wish-card p {
+  color: #ddd;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.wish-meta {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #888;
+  display: flex;
+  justify-content: space-between;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 响应式微调 */
+@media (max-width: 480px) {
+  .header h1 { font-size: 1.5rem; }
+  .fab-btn { bottom: 70px; right: 15px; width: 50px; height: 50px; font-size: 1.2rem; }
+}
+/* 在 style.css 末尾添加 */
+#randomCard {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 0 20px rgba(106, 17, 203, 0.3);
+}
+#randomCard:hover {
+    box-shadow: 0 0 30px rgba(255, 154, 158, 0.5);
+    border-color: var(--accent-color);
+}
