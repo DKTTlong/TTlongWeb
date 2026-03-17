@@ -3,547 +3,489 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>霓虹太空幸存者 (独立配置终极版)</title>
+    <title>许愿星 - 遇见美好</title>
+    <!-- 引入图标库 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- 引入 Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
-        body { margin: 0; overflow: hidden; background: #050505; font-family: 'Segoe UI', sans-serif; touch-action: none; cursor: crosshair; user-select: none; }
-        canvas { display: block; }
-        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; flex-direction: column; padding: 10px 20px; box-sizing: border-box; }
-        .hud-top { display: flex; justify-content: space-between; color: #fff; text-shadow: 0 0 10px #0ff; font-size: 18px; font-weight: bold; margin-bottom: 8px; }
-        .bars-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 5px; }
-        .bar-bg { position: relative; width: 100%; height: 10px; background: rgba(255,255,255,0.15); border-radius: 5px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-        .bar-fill { height: 100%; width: 0%; transition: width 0.2s; border-radius: 5px; }
-        .xp-fill { background: linear-gradient(90deg, #00f260, #0575e6); box-shadow: 0 0 10px #00f260; }
-        .hp-fill { background: linear-gradient(90deg, #ff4444, #ff8888); box-shadow: 0 0 10px #ff4444; }
-        .inv-fill { background: #fff; box-shadow: 0 0 10px #fff; display: none; }
-        
-        #upgrade-menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.92); display: none; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; z-index: 10; backdrop-filter: blur(10px); }
-        #upgrade-menu h2 { color: #fff; font-size: 32px; margin-bottom: 30px; text-shadow: 0 0 20px #f0f; animation: pulse 1.5s infinite; }
-        .cards-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 90%; }
-        .card { background: linear-gradient(135deg, #1a1a2e, #16213e); border: 2px solid #444; border-radius: 15px; width: 220px; padding: 20px; color: #fff; cursor: pointer; transition: all 0.2s; text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 150px; }
-        .card:hover { transform: translateY(-10px) scale(1.05); border-color: #0ff; box-shadow: 0 0 30px rgba(0, 255, 255, 0.4); }
-        .card-icon { font-size: 44px; margin-bottom: 12px; display: block; }
-        .card-title { font-size: 19px; font-weight: bold; margin-bottom: 8px; display: block; color: #fff; }
-        .card-desc { font-size: 13px; color: #aaa; line-height: 1.4; }
-        .card-rare { border-color: #ffd700; background: linear-gradient(135deg, #2a2a1e, #16213e); }
-        .card-rare .card-title { color: #ffd700; }
-        .card-frost { border-color: #00ffff; box-shadow: 0 0 10px rgba(0, 255, 255, 0.1); } .card-frost .card-title { color: #00ffff; }
-        .card-lightning { border-color: #ffff00; box-shadow: 0 0 10px rgba(255, 255, 0, 0.1); } .card-lightning .card-title { color: #ffff00; }
-        .card-explosive { border-color: #ff4444; box-shadow: 0 0 10px rgba(255, 68, 68, 0.1); } .card-explosive .card-title { color: #ff4444; }
-        .card-laser { border-color: #00ff00; box-shadow: 0 0 10px rgba(0, 255, 0, 0.1); } .card-laser .card-title { color: #00ff00; }
-        .card-normal { border-color: #ffeb3b; box-shadow: 0 0 10px rgba(255, 235, 59, 0.1); } .card-normal .card-title { color: #ffeb3b; }
+        :root {
+            --primary-color: #ff7eb9;
+            --secondary-color: #ff758c;
+            --bg-color: #fff0f6;
+            --text-color: #333;
+            --white: #ffffff;
+        }
 
-        #game-over-menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(50, 0, 0, 0.95); display: none; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; z-index: 20; }
-        #game-over-menu h1 { color: #ff4444; font-size: 48px; margin: 0 0 20px 0; text-shadow: 0 0 20px #f00; }
-        #game-over-menu p { color: #fff; font-size: 24px; margin: 10px 0; }
-        .restart-btn { margin-top: 30px; padding: 15px 40px; font-size: 20px; background: linear-gradient(45deg, #ff4444, #ff8888); color: white; border: none; border-radius: 30px; cursor: pointer; box-shadow: 0 0 20px #ff4444; transition: transform 0.2s; }
-        .restart-btn:hover { transform: scale(1.1); }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .mobile-hint { display: none; color: rgba(255,255,255,0.5); font-size: 12px; position: absolute; bottom: 20px; width: 100%; text-align: center; }
-        @media (hover: none) { .mobile-hint { display: block; } }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 70px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            padding: 20px 15px 40px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(255, 126, 185, 0.3);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .user-info {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 12px;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .container {
+            padding: 0 15px;
+            margin-top: -25px;
+        }
+
+        .fab-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(255, 117, 140, 0.4);
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.2s;
+        }
+        .fab-btn:active {
+            transform: scale(0.95);
+        }
+
+        .wish-card {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wish-card.vip-blur {
+            filter: blur(4px);
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .wish-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin-right: 10px;
+            background-size: cover;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .time {
+            font-size: 10px;
+            color: #999;
+            margin-left: auto;
+        }
+
+        .wish-content {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        .wish-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+        
+        .action-item.liked {
+            color: var(--secondary-color);
+        }
+
+        .vip-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            backdrop-filter: blur(2px);
+        }
+
+        .vip-icon {
+            font-size: 30px;
+            color: #ffd700;
+            margin-bottom: 8px;
+        }
+
+        .vip-text {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .vip-btn {
+            margin-top: 8px;
+            padding: 4px 12px;
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #eee;
+            z-index: 99;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #999;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .tab-item.active {
+            color: var(--primary-color);
+        }
+
+        .tab-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 80%;
+            max-width: 300px;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .modal-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            width: 100%;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    <div id="ui-layer">
-        <div class="hud-top">
-            <div id="score-display">得分: 0</div>
-            <div id="level-display">等级: 1</div>
-            <div id="time-display">生存: 00:00</div>
+
+    <div class="header">
+        <div class="user-info" id="userInfo">
+            <i class="fas fa-user"></i> 游客
         </div>
-        <div class="bars-container">
-            <div class="bar-bg"><div class="bar-fill xp-fill" id="xp-bar"></div></div>
-            <div class="bar-bg"><div class="bar-fill hp-fill" id="hp-bar"></div></div>
-            <div class="bar-bg" style="height: 5px;"><div class="bar-fill inv-fill" id="inv-bar"></div></div>
-        </div>
-        <div class="mobile-hint" style="margin-top: auto;">滑动控制移动 • 自动攻击</div>
-    </div>
-    <div id="upgrade-menu"><h2>选择强化!</h2><div class="cards-container" id="cards-container"></div></div>
-    <div id="game-over-menu">
-        <h1>任务失败</h1>
-        <p>最终得分: <span id="final-score">0</span></p>
-        <p>坚持时间: <span id="final-time">00:00</span></p>
-        <button class="restart-btn" onclick="restartGame()">再次挑战</button>
+        <h1>✨ 许愿星</h1>
+        <p>写下你的愿望，让宇宙听见</p>
     </div>
 
-<script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resize);
-    resize();
+    <div class="container" id="wish-list">
+        <div class="loading">正在加载愿望...</div>
+    </div>
 
-    let gameState = { isRunning: true, isPaused: false, score: 0, time: 0, level: 1, xp: 0, xpToNextLevel: 30, frames: 0 };
+    <div class="fab-btn" id="fabButton">
+        <i class="fas fa-plus"></i>
+    </div>
 
-    // 玩家属性：完全独立配置
-    const player = {
-        x: canvas.width / 2, y: canvas.height / 2, radius: 14, speed: 5.0, color: '#0ff',
-        hp: 100, maxHp: 100, 
-        invincibleTime: 0, maxInvincibleTime: 90,
+    <div class="tab-bar">
+        <div class="tab-item active"><i class="fas fa-home"></i><span>首页</span></div>
+        <div class="tab-item"><i class="fas fa-compass"></i><span>发现</span></div>
+        <div class="tab-item"><i class="fas fa-comment-dots"></i><span>消息</span></div>
+        <div class="tab-item"><i class="fas fa-user"></i><span>我的</span></div>
+    </div>
 
-        // --- 普通子弹 (独立配置) ---
-        normal: { 
-            active: true,
-            damage: 15, speed: 11, pierce: 1, spread: 0.1, 
-            count: 1, fireRate: 35, homingChance: 0.0 
-        },
+    <div class="modal" id="publishModal">
+        <div class="modal-content">
+            <h3>✨ 许个愿吧</h3>
+            <input type="text" id="usernameInput" class="modal-input" placeholder="你的昵称 (必填)" style="margin-bottom: 10px;">
+            <textarea class="modal-input" id="wishInput" rows="4" placeholder="在这里写下你的愿望..."></textarea>
+            <button class="modal-btn" id="addWishBtn">发布愿望</button>
+            <button style="margin-top:10px; background:none; border:none; color:#999;" id="cancelModalBtn">取消</button>
+        </div>
+    </div>
 
-        // --- 冰霜弹 (独立配置) ---
-        frost: { 
-            active: false, 
-            damage: 10, speed: 10, pierce: 1, spread: 0.2, count: 1, fireRate: 40,
-            freezeDuration: 60, level: 0 
-        },
-
-        // --- 闪电链 (独立配置) ---
-        chain: { 
-            active: false, 
-            damage: 12, speed: 12, pierce: 99, spread: 0.15, count: 1, fireRate: 45,
-            jumpCount: 3, jumpDamageMult: 0.8, level: 0 
-        },
-
-        // --- 爆裂弹 (独立配置) ---
-        explosive: { 
-            active: false, 
-            damage: 18, speed: 9, pierce: 1, spread: 0.25, count: 1, fireRate: 50,
-            blastRadius: 80, blastDamageMult: 0.7, level: 0 
-        },
-
-        // --- 激光 (独立配置) ---
-        laser: { 
-            active: false, 
-            damage: 8, speed: 18, pierce: 999, spread: 0.05, count: 1, fireRate: 60,
-            width: 4, level: 0 
-        }
-    };
-
-    // 记录每种子弹的上次发射时间
-    let lastFireTimes = { normal: 0, frost: 0, chain: 0, explosive: 0, laser: 0 };
-
-    let entities = { bullets: [], enemies: [], xpGems: [], particles: [], texts: [] };
-    const mouse = { x: canvas.width / 2, y: canvas.height / 2 };
-
-    window.addEventListener('mousemove', e => { if(!gameState.isPaused && gameState.isRunning) { mouse.x = e.clientX; mouse.y = e.clientY; }});
-    window.addEventListener('touchmove', e => {
-        if(!gameState.isPaused && gameState.isRunning) { e.preventDefault(); mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; }
-    }, { passive: false });
-
-    // --- 升级池 (严格独立) ---
-    const upgrades = [
-        // 通用
-        { id: 'speed_up', name: '推进器', icon: '🚀', desc: '移动速度 +15%', rarity: 'common', apply: () => { player.speed *= 1.15; } },
-        { id: 'heal', name: '紧急修复', icon: '❤️', desc: '恢复 50% 生命值', rarity: 'common', apply: () => { player.hp = Math.min(player.maxHp, player.hp + player.maxHp * 0.5); } },
+    <script>
+        // ================= ⚠️ 重要：请在此处填写你的 Supabase 信息 ⚠️ =================
         
-        // 普通弹专属
-        { id: 'normal_count', name: '多重射击 - 普通', icon: '🔱', desc: '普通子弹数量 +1', rarity: 'common', type: 'normal', apply: () => { player.normal.count++; } },
-        { id: 'normal_rate', name: '极速装填 - 普通', icon: '⚡', desc: '普通子弹射速 +20%', rarity: 'common', type: 'normal', apply: () => { player.normal.fireRate = Math.max(5, player.normal.fireRate * 0.8); } },
-        { id: 'normal_dmg', name: '弹药强化 - 普通', icon: '🔫', desc: '普通子弹伤害 +30%', rarity: 'common', type: 'normal', apply: () => { player.normal.damage *= 1.3; } },
-        { id: 'normal_homing', name: '制导芯片 - 普通', icon: '📡', desc: '普通子弹追踪几率 +20%', rarity: 'rare', type: 'normal', apply: () => { player.normal.homingChance = Math.min(1.0, player.normal.homingChance + 0.2); } },
-        { id: 'normal_pierce', name: '穿甲弹头 - 普通', icon: '📍', desc: '普通子弹穿透 +2', rarity: 'rare', type: 'normal', apply: () => { player.normal.pierce += 2; } },
-
-        // 冰霜弹专属
-        { id: 'frost_unlock', name: '解锁: 冰霜弹', icon: '❄️', desc: '获得冰霜弹', rarity: 'rare', condition: () => !player.frost.active, apply: () => { player.frost.active = true; player.frost.level = 1; } },
-        { id: 'frost_count', name: '多重射击 - 冰霜', icon: '❄️', desc: '冰霜弹数量 +1', rarity: 'rare', condition: () => player.frost.active, apply: () => { player.frost.count++; } },
-        { id: 'frost_rate', name: '极速装填 - 冰霜', icon: '⚡', desc: '冰霜弹射速 +20%', rarity: 'common', condition: () => player.frost.active, apply: () => { player.frost.fireRate = Math.max(5, player.frost.fireRate * 0.8); } },
-        { id: 'frost_dmg', name: '冰霜伤害', icon: '❄️', desc: '冰霜弹伤害 +30%', rarity: 'common', condition: () => player.frost.active, apply: () => { player.frost.damage *= 1.3; } },
-        { id: 'frost_time', name: '深度冷冻', icon: '🥶', desc: '冰冻持续时间 +50%', rarity: 'rare', condition: () => player.frost.active, apply: () => { player.frost.freezeDuration *= 1.5; } },
-
-        // 闪电链专属
-        { id: 'chain_unlock', name: '解锁: 闪电链', icon: '⚡', desc: '获得闪电链', rarity: 'rare', condition: () => !player.chain.active, apply: () => { player.chain.active = true; player.chain.level = 1; } },
-        { id: 'chain_count', name: '多重射击 - 闪电', icon: '⚡', desc: '闪电链数量 +1', rarity: 'rare', condition: () => player.chain.active, apply: () => { player.chain.count++; } },
-        { id: 'chain_rate', name: '极速装填 - 闪电', icon: '⚡', desc: '闪电链射速 +20%', rarity: 'common', condition: () => player.chain.active, apply: () => { player.chain.fireRate = Math.max(5, player.chain.fireRate * 0.8); } },
-        { id: 'chain_dmg', name: '闪电伤害', icon: '⚡', desc: '闪电链伤害 +30%', rarity: 'common', condition: () => player.chain.active, apply: () => { player.chain.damage *= 1.3; } },
-        { id: 'chain_jump', name: '连锁反应', icon: '⚡', desc: '闪电跳跃次数 +1', rarity: 'rare', condition: () => player.chain.active, apply: () => { player.chain.jumpCount += 1; } },
-
-        // 爆裂弹专属
-        { id: 'explosive_unlock', name: '解锁: 爆裂弹', icon: '☄️', desc: '获得爆裂弹', rarity: 'rare', condition: () => !player.explosive.active, apply: () => { player.explosive.active = true; player.explosive.level = 1; } },
-        { id: 'explosive_count', name: '多重射击 - 爆裂', icon: '☄️', desc: '爆裂弹数量 +1', rarity: 'rare', condition: () => player.explosive.active, apply: () => { player.explosive.count++; } },
-        { id: 'explosive_rate', name: '极速装填 - 爆裂', icon: '⚡', desc: '爆裂弹射速 +20%', rarity: 'common', condition: () => player.explosive.active, apply: () => { player.explosive.fireRate = Math.max(5, player.explosive.fireRate * 0.8); } },
-        { id: 'explosive_dmg', name: '爆裂伤害', icon: '☄️', desc: '爆裂弹伤害 +30%', rarity: 'common', condition: () => player.explosive.active, apply: () => { player.explosive.damage *= 1.3; } },
-        { id: 'explosive_radius', name: '大型爆破', icon: '☄️', desc: '爆炸范围 +30%', rarity: 'rare', condition: () => player.explosive.active, apply: () => { player.explosive.blastRadius *= 1.3; } },
-
-        // 激光专属
-        { id: 'laser_unlock', name: '解锁: 激光', icon: '🔦', desc: '获得激光弹', rarity: 'rare', condition: () => !player.laser.active, apply: () => { player.laser.active = true; player.laser.level = 1; } },
-        { id: 'laser_rate', name: '极速装填 - 激光', icon: '⚡', desc: '激光射速 +20%', rarity: 'common', condition: () => player.laser.active, apply: () => { player.laser.fireRate = Math.max(5, player.laser.fireRate * 0.8); } },
-        { id: 'laser_dmg', name: '激光功率', icon: '🔦', desc: '激光伤害 +30%', rarity: 'common', condition: () => player.laser.active, apply: () => { player.laser.damage *= 1.3; } },
-    ];
-
-    function randomRange(min, max) { return Math.random() * (max - min) + min; }
-    function getDistance(x1, y1, x2, y2) { return Math.hypot(x2 - x1, y2 - y1); }
-    function formatTime(s) { const m = Math.floor(s / 60).toString().padStart(2, '0'); const sec = Math.floor(s % 60).toString().padStart(2, '0'); return `${m}:${sec}`; }
-
-    function spawnEnemy() {
-        const edge = Math.floor(Math.random() * 4);
-        let x, y, buffer = 80;
-        if (edge === 0) { x = Math.random() * canvas.width; y = -buffer; }
-        else if (edge === 1) { x = canvas.width + buffer; y = Math.random() * canvas.height; }
-        else if (edge === 2) { x = Math.random() * canvas.width; y = canvas.height + buffer; }
-        else { x = -buffer; y = Math.random() * canvas.height; }
-
-        const diffMult = 1 + (gameState.time / 30) + (gameState.score / 3000);
-        const isFast = Math.random() < 0.25;
-        entities.enemies.push({
-            x, y, radius: isFast ? 12 : 24, baseSpeed: isFast ? 3.8 : 2.2,
-            hp: (isFast ? 25 : 60) * diffMult, maxHp: (isFast ? 25 : 60) * diffMult,
-            color: isFast ? '#ff9900' : `hsl(${randomRange(0, 40)}, 80%, 50%)`,
-            slowFactor: 1, frozenTime: 0, id: Math.random()
-        });
-    }
-
-    // --- 核心：独立发射逻辑 ---
-    function tryFire(type, config) {
-        if (!config.active) return;
-        if (gameState.frames - lastFireTimes[type] < config.fireRate) return;
+        // 1. 填入你的 Project URL (例如: https://xxxxx.supabase.co)
+        const SUPABASE_URL = 'https://nbiiazenwummrunqntlt.supabase.co'; 
         
-        lastFireTimes[type] = gameState.frames;
-
-        // 计算瞄准角度
-        let targetAngle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
-        if (entities.enemies.length > 0) {
-            let nearest = null, minDist = Infinity;
-            entities.enemies.forEach(e => {
-                const d = getDistance(player.x, player.y, e.x, e.y);
-                if (d < minDist) { minDist = d; nearest = e; }
-            });
-            if (nearest) targetAngle = Math.atan2(nearest.y - player.y, nearest.x - player.x);
-        }
-
-        const count = config.count;
-        const startAngle = targetAngle - (config.spread * (count - 1)) / 2;
-
-        for (let i = 0; i < count; i++) {
-            const angle = startAngle + i * config.spread;
-            // 只有普通子弹受 homingChance 影响 (根据需求2)
-            const isHoming = (type === 'normal') ? (Math.random() < config.homingChance) : false;
-            
-            entities.bullets.push({
-                x: player.x, y: player.y,
-                vx: Math.cos(angle) * config.speed,
-                vy: Math.sin(angle) * config.speed,
-                damage: config.damage,
-                pierce: config.pierce,
-                hitList: [],
-                life: type === 'laser' ? 30 : 100,
-                type: type,
-                color: getTypeColor(type),
-                radius: type === 'laser' ? config.width/2 : 5,
-                isHoming: isHoming,
-                // 特殊属性
-                freezeDuration: config.freezeDuration || 0,
-                jumpCountMax: config.jumpCount || 0,
-                jumpCountCurrent: 0,
-                jumpDamageMult: config.jumpDamageMult || 0,
-                blastRadius: config.blastRadius || 0,
-                blastDamageMult: config.blastDamageMult || 0
-            });
-        }
-    }
-
-    function getTypeColor(type) {
-        if (type === 'normal') return '#ffeb3b';
-        if (type === 'frost') return '#00ffff';
-        if (type === 'chain') return '#ffff00';
-        if (type === 'explosive') return '#ff4444';
-        if (type === 'laser') return '#00ff00';
-        return '#fff';
-    }
-
-    function createExplosion(x, y, color, count = 15) {
-        for (let i = 0; i < count; i++) {
-            entities.particles.push({ x, y, vx: randomRange(-5, 5), vy: randomRange(-5, 5), life: 1.0, decay: randomRange(0.03, 0.07), color: color, size: randomRange(2, 6), type: 'spark' });
-        }
-        if (color === '#aaf') {
-             for (let i = 0; i < 8; i++) {
-                entities.particles.push({ x: x + randomRange(-10, 10), y: y + randomRange(-10, 10), vx: 0, vy: 0, life: 0.8, decay: 0.02, color: '#fff', size: 2, type: 'ice_crystal' });
-             }
-        }
-    }
-
-    function createFloatingText(x, y, text, color) { entities.texts.push({ x, y, text, life: 1.0, vy: -1.5, color }); }
-
-    function gainXp(amount) {
-        gameState.xp += amount;
-        if (gameState.xp >= gameState.xpToNextLevel) {
-            gameState.xp -= gameState.xpToNextLevel;
-            gameState.level++;
-            gameState.xpToNextLevel = Math.floor(gameState.xpToNextLevel * 1.3);
-            showUpgradeMenu();
-        }
-        updateUI();
-    }
-
-    function showUpgradeMenu() {
-        gameState.isPaused = true;
-        const menu = document.getElementById('upgrade-menu');
-        const container = document.getElementById('cards-container');
-        container.innerHTML = '';
+        // 2. 填入你的 Publishable Key (以 sb_publishable_ 开头的那串长字符)
+        const SUPABASE_KEY = 'sb_publishable_S4L95iYE8AUhMHeZQKNkkA_1sQDQKDO'; 
         
-        let availableUpgrades = upgrades.filter(u => !u.condition || u.condition());
-        let options = [];
-        while(options.length < 3 && availableUpgrades.length > 0) {
-            const idx = Math.floor(Math.random() * availableUpgrades.length);
-            const skill = availableUpgrades[idx];
-            if (!options.some(o => o.id === skill.id)) options.push(skill);
-        }
+        // ===========================================================================
 
-        if (options.length === 0) {
-             const skill = upgrades.find(u => u.id === 'heal');
-             if(skill) options.push(skill);
-        }
+        // 初始化 Supabase 客户端
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        options.forEach(skill => {
-            const card = document.createElement('div');
-            let extraClass = '';
-            if (skill.rarity === 'rare') extraClass = 'card-rare';
-            if (skill.type === 'normal' || skill.id.includes('normal')) extraClass = 'card-normal';
-            if (skill.id.includes('frost')) extraClass = 'card-frost';
-            if (skill.id.includes('chain')) extraClass = 'card-lightning';
-            if (skill.id.includes('explosive')) extraClass = 'card-explosive';
-            if (skill.id.includes('laser')) extraClass = 'card-laser';
-            
-            card.className = `card ${extraClass}`;
-            card.innerHTML = `<span class="card-icon">${skill.icon}</span><span class="card-title">${skill.name}</span><span class="card-desc">${skill.desc}</span>`;
-            card.onclick = () => { skill.apply(); menu.style.display = 'none'; gameState.isPaused = false; mouse.x = player.x; mouse.y = player.y; };
-            container.appendChild(card);
-        });
-        menu.style.display = 'flex';
-    }
+        document.addEventListener('DOMContentLoaded', function() {
+            const wishListEl = document.getElementById('wish-list');
+            const fabButton = document.getElementById('fabButton');
+            const publishModal = document.getElementById('publishModal');
+            const addWishBtn = document.getElementById('addWishBtn');
+            const cancelModalBtn = document.getElementById('cancelModalBtn');
+            const wishInput = document.getElementById('wishInput');
+            const usernameInput = document.getElementById('usernameInput');
+            const userInfo = document.getElementById('userInfo');
 
-    function gameOver() {
-        gameState.isRunning = false;
-        document.getElementById('game-over-menu').style.display = 'flex';
-        document.getElementById('final-score').innerText = Math.floor(gameState.score);
-        document.getElementById('final-time').innerText = formatTime(gameState.time);
-    }
+            // 1. 加载数据函数
+            async function loadWishes() {
+                wishListEl.innerHTML = '<div class="loading">正在加载愿望...</div>';
+                
+                // 从 Supabase 查询数据，按时间倒序
+                const { data, error } = await _supabase
+                    .from('wishes')
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
-    function restartGame() {
-        gameState = { isRunning: true, isPaused: false, score: 0, time: 0, level: 1, xp: 0, xpToNextLevel: 30, frames: 0 };
-        player.x = canvas.width/2; player.y = canvas.height/2; player.hp = 100; player.invincibleTime = 0;
-        player.speed = 5.0;
-        
-        // 重置所有独立配置
-        player.normal = { active: true, damage: 15, speed: 11, pierce: 1, spread: 0.1, count: 1, fireRate: 35, homingChance: 0.0 };
-        player.frost = { active: false, damage: 10, speed: 10, pierce: 1, spread: 0.2, count: 1, fireRate: 40, freezeDuration: 60, level: 0 };
-        player.chain = { active: false, damage: 12, speed: 12, pierce: 99, spread: 0.15, count: 1, fireRate: 45, jumpCount: 3, jumpDamageMult: 0.8, level: 0 };
-        player.explosive = { active: false, damage: 18, speed: 9, pierce: 1, spread: 0.25, count: 1, fireRate: 50, blastRadius: 80, blastDamageMult: 0.7, level: 0 };
-        player.laser = { active: false, damage: 8, speed: 18, pierce: 999, spread: 0.05, count: 1, fireRate: 60, width: 4, level: 0 };
-
-        lastFireTimes = { normal: 0, frost: 0, chain: 0, explosive: 0, laser: 0 };
-        entities = { bullets: [], enemies: [], xpGems: [], particles: [], texts: [] };
-        document.getElementById('game-over-menu').style.display = 'none';
-        document.getElementById('upgrade-menu').style.display = 'none';
-        mouse.x = player.x; mouse.y = player.y;
-        updateUI();
-        loop();
-    }
-
-    function updateUI() {
-        document.getElementById('score-display').innerText = `得分: ${Math.floor(gameState.score)}`;
-        document.getElementById('time-display').innerText = `生存: ${formatTime(gameState.time)}`;
-        document.getElementById('level-display').innerText = `等级: ${gameState.level}`;
-        document.getElementById('xp-bar').style.width = `${(gameState.xp / gameState.xpToNextLevel) * 100}%`;
-        document.getElementById('hp-bar').style.width = `${(player.hp / player.maxHp) * 100}%`;
-        const invBar = document.getElementById('inv-bar');
-        if (player.invincibleTime > 0) { invBar.style.display = 'block'; invBar.style.width = `${(player.invincibleTime / player.maxInvincibleTime) * 100}%`; } 
-        else { invBar.style.display = 'none'; }
-    }
-
-    function loop() {
-        if (!gameState.isRunning) return;
-        requestAnimationFrame(loop);
-        if (gameState.isPaused) return;
-
-        gameState.frames++;
-        if (gameState.frames % 60 === 0) { gameState.time++; updateUI(); }
-
-        if (player.invincibleTime > 0) { player.invincibleTime--; if (player.invincibleTime % 6 < 3) ctx.globalAlpha = 0.5; }
-        updateUI();
-        ctx.globalAlpha = 1.0;
-        ctx.fillStyle = 'rgba(5, 5, 5, 0.4)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        const dx = mouse.x - player.x, dy = mouse.y - player.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist > 5) { player.x += (dx / dist) * player.speed; player.y += (dy / dist) * player.speed; }
-        player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
-        player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
-
-        ctx.shadowBlur = 20; ctx.shadowColor = player.invincibleTime > 0 ? '#fff' : player.color;
-        ctx.fillStyle = player.invincibleTime > 0 ? '#fff' : player.color;
-        ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2); ctx.fill();
-        ctx.shadowBlur = 0;
-
-        // --- 独立发射检查 ---
-        tryFire('normal', player.normal);
-        tryFire('frost', player.frost);
-        tryFire('chain', player.chain);
-        tryFire('explosive', player.explosive);
-        tryFire('laser', player.laser);
-
-        // --- 子弹系统 ---
-        for (let i = entities.bullets.length - 1; i >= 0; i--) {
-            let b = entities.bullets[i];
-            
-            // 追踪逻辑 (仅普通弹可能开启)
-            if (b.isHoming && entities.enemies.length > 0 && b.type !== 'laser') {
-                let nearest = null, minDist = 500;
-                entities.enemies.forEach(e => { const d = getDistance(b.x, b.y, e.x, e.y); if (d < minDist) { minDist = d; nearest = e; } });
-                if (nearest) {
-                    const targetAngle = Math.atan2(nearest.y - b.y, nearest.x - b.x);
-                    const currentAngle = Math.atan2(b.vy, b.vx);
-                    let diff = targetAngle - currentAngle;
-                    while (diff < -Math.PI) diff += Math.PI * 2; while (diff > Math.PI) diff -= Math.PI * 2;
-                    const newAngle = currentAngle + diff * 0.18;
-                    const speed = Math.hypot(b.vx, b.vy);
-                    b.vx = Math.cos(newAngle) * speed; b.vy = Math.sin(newAngle) * speed;
+                if (error) {
+                    console.error('Error loading wishes:', error);
+                    wishListEl.innerHTML = '<div class="loading" style="color:red">加载失败<br><small>' + error.message + '</small></div>';
+                    return;
                 }
+
+                renderWishes(data || []);
             }
 
-            b.x += b.vx; b.y += b.vy; b.life--;
-            
-            // 绘制
-            ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(Math.atan2(b.vy, b.vx));
-            ctx.fillStyle = b.color; 
-            ctx.shadowBlur = 10; ctx.shadowColor = b.color;
-            
-            if (b.type === 'laser') {
-                ctx.fillRect(-15, -b.radius, 30, b.radius*2);
-            } else if (b.type === 'chain') {
-                ctx.beginPath(); ctx.moveTo(5,0); ctx.lineTo(-3,-4); ctx.lineTo(-3,4); ctx.fill();
-                ctx.strokeStyle = b.color; ctx.stroke();
-            } else if (b.type === 'explosive') {
-                ctx.beginPath(); ctx.arc(0, 0, b.radius+2, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, 0, b.radius/2, 0, Math.PI*2); ctx.fill();
-            } else if (b.type === 'frost') {
-                ctx.beginPath(); ctx.arc(0, 0, b.radius, 0, Math.PI*2); ctx.fill();
-                ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
-            } else {
-                ctx.beginPath(); ctx.arc(0, 0, b.radius, 0, Math.PI*2); ctx.fill();
-            }
-            ctx.restore(); ctx.shadowBlur = 0;
+            // 2. 渲染列表函数
+            function renderWishes(wishes) {
+                wishListEl.innerHTML = '';
+                if (wishes.length === 0) {
+                    wishListEl.innerHTML = '<div class="loading">还没有愿望，快来发第一个吧！</div>';
+                    return;
+                }
 
-            if (b.life <= 0 || b.x < -100 || b.x > canvas.width+100 || b.y < -100 || b.y > canvas.height+100) { entities.bullets.splice(i, 1); continue; }
-
-            let bulletDestroyed = false;
-            
-            for (let j = entities.enemies.length - 1; j >= 0; j--) {
-                let e = entities.enemies[j];
-                if (b.hitList.includes(e.id)) continue;
-
-                if (getDistance(b.x, b.y, e.x, e.y) < e.radius + b.radius + 4) {
-                    b.hitList.push(e.id);
-                    e.hp -= b.damage;
-                    createFloatingText(e.x, e.y, Math.floor(b.damage), b.color);
-
-                    // 1. 冰霜
-                    if (b.type === 'frost') {
-                        e.frozenTime = player.frost.freezeDuration;
-                        e.slowFactor = 0.2;
-                        createExplosion(e.x, e.y, '#aaf', 5);
-                    }
+                wishes.forEach(wish => {
+                    const card = document.createElement('div');
+                    card.className = 'wish-card';
                     
-                    // 2. 爆裂
-                    if (b.type === 'explosive') {
-                        createExplosion(e.x, e.y, '#f55', 12);
-                        entities.enemies.forEach(other => {
-                            if (other.id !== e.id && getDistance(e.x, e.y, other.x, other.y) < player.explosive.blastRadius) {
-                                other.hp -= b.damage * player.explosive.blastDamageMult;
-                                createFloatingText(other.x, other.y, Math.floor(b.damage * player.explosive.blastDamageMult), "#f99");
-                            }
-                        });
+                    // 简单的 VIP 模拟逻辑：如果内容包含 "秘密" 两个字，就模糊
+                    const isVip = wish.content && wish.content.includes('秘密'); 
+                    if (isVip) card.classList.add('vip-blur');
+
+                    const vipMask = isVip ? `
+                        <div class="vip-mask">
+                            <i class="fas fa-crown vip-icon"></i>
+                            <div class="vip-text">会员专享内容</div>
+                            <button class="vip-btn" onclick="alert('开通会员即可查看！')">立即解锁</button>
+                        </div>
+                    ` : '';
+
+                    // 随机头像生成
+                    const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${wish.username || 'Anon'}`;
+
+                    // 格式化时间
+                    let timeStr = '刚刚';
+                    if(wish.created_at) {
+                        const date = new Date(wish.created_at);
+                        timeStr = `${date.getMonth()+1}月${date.getDate()}日 ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
                     }
 
-                    // 3. 闪电链
-                    if (b.type === 'chain' && b.jumpCountCurrent < b.jumpCountMax) {
-                        let nextTarget = null; let minNextDist = 200;
-                        entities.enemies.forEach(other => {
-                            if (!b.hitList.includes(other.id)) {
-                                const d = getDistance(e.x, e.y, other.x, other.y);
-                                if (d < minNextDist) { minNextDist = d; nextTarget = other; }
-                            }
-                        });
-                        if (nextTarget) {
-                            b.jumpCountCurrent++;
-                            let chainDmg = b.damage * b.jumpDamageMult;
-                            nextTarget.hp -= chainDmg;
-                            b.hitList.push(nextTarget.id);
-                            createFloatingText(nextTarget.x, nextTarget.y, "⚡" + Math.floor(chainDmg), "#ff0");
-                            entities.particles.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: 0.25, decay: 0.05, color: '#ff0', size: 3, type: 'lightning', target: nextTarget, endX: nextTarget.x, endY: nextTarget.y });
-                        }
-                    }
+                    card.innerHTML = `
+                        <div class="wish-header">
+                            <div class="avatar" style="background-image: url('${avatarUrl}')"></div>
+                            <div class="user-name">${wish.username || '匿名'}</div>
+                            <div class="time">${timeStr}</div>
+                        </div>
+                        <div class="wish-content">${wish.content || ''}</div>
+                        ${vipMask}
+                        <div class="wish-actions">
+                            <div class="action-item" onclick="handleLike(${wish.id}, ${wish.likes || 0}, this)">
+                                <i class="far fa-heart"></i> <span>${wish.likes || 0}</span>
+                            </div>
+                            <div class="action-item"><i class="far fa-comment"></i> <span>评论</span></div>
+                            <div class="action-item"><i class="far fa-share-square"></i> <span>分享</span></div>
+                        </div>
+                    `;
+                    wishListEl.appendChild(card);
+                });
+            }
 
-                    if (e.hp <= 0) {
-                        gameState.score += 10;
-                        createExplosion(e.x, e.y, e.color, 15);
-                        entities.xpGems.push({ x: e.x, y: e.y, val: 10, radius: 5 });
-                        entities.enemies.splice(j, 1);
-                    }
+            // 3. 处理点赞 (仅前端模拟，未写入数据库以防频繁操作)
+            window.handleLike = (id, currentLikes, element) => {
+                element.classList.toggle('liked');
+                const icon = element.querySelector('i');
+                const countSpan = element.querySelector('span');
+                
+                let newCount = currentLikes + (element.classList.contains('liked') ? 1 : -1);
+                countSpan.innerText = newCount;
+                icon.classList.toggle('far');
+                icon.classList.toggle('fas');
+            };
 
-                    // 穿透消耗
-                    if (b.type !== 'laser') {
-                        b.pierce--;
-                        if (b.pierce <= 0) {
-                            entities.bullets.splice(i, 1);
-                            bulletDestroyed = true;
-                            break;
-                        }
-                    }
+            // 4. 发布愿望 (写入数据库)
+            async function addWish() {
+                const username = usernameInput.value.trim();
+                const text = wishInput.value.trim();
+                
+                if (!username) { alert("请填写昵称哦~"); return; }
+                if (!text) { alert("请先写下愿望哦~"); return; }
+
+                // 按钮变 Loading 状态
+                const originalBtnText = addWishBtn.innerText;
+                addWishBtn.innerText = "发布中...";
+                addWishBtn.disabled = true;
+
+                // 插入数据到 Supabase
+                const { data, error } = await _supabase
+                    .from('wishes')
+                    .insert([
+                        { username: username, content: text, likes: 0 }
+                    ]);
+
+                addWishBtn.innerText = originalBtnText;
+                addWishBtn.disabled = false;
+
+                if (error) {
+                    alert("发布失败：" + error.message);
+                    console.error(error);
+                } else {
+                    wishInput.value = '';
+                    // 保存昵称到本地，方便下次
+                    localStorage.setItem('wishing_username', username);
+                    userInfo.innerHTML = `<i class="fas fa-user"></i> ${username}`;
+                    
+                    closePublishModal();
+                    alert("发布成功！");
+                    loadWishes(); // 重新加载列表
                 }
             }
-        }
 
-        if (gameState.frames % Math.max(15, 50 - Math.floor(gameState.time / 4)) === 0) spawnEnemy();
+            // 事件绑定
+            fabButton.addEventListener('click', () => {
+                // 尝试从本地存储读取上次输入的昵称
+                const lastUser = localStorage.getItem('wishing_username');
+                if(lastUser) usernameInput.value = lastUser;
+                openPublishModal();
+            });
+            
+            addWishBtn.addEventListener('click', addWish);
+            cancelModalBtn.addEventListener('click', closePublishModal);
+            window.addEventListener('click', (e) => { if(e.target === publishModal) closePublishModal(); });
 
-        entities.enemies.forEach(e => {
-            if (e.frozenTime > 0) { e.frozenTime--; e.slowFactor = 0.2; } 
-            else { if (e.slowFactor < 1) e.slowFactor += 0.02; if (e.slowFactor > 1) e.slowFactor = 1; }
-            const angle = Math.atan2(player.y - e.y, player.x - e.x);
-            e.x += Math.cos(angle) * e.baseSpeed * e.slowFactor; e.y += Math.sin(angle) * e.baseSpeed * e.slowFactor;
-            if (getDistance(e.x, e.y, player.x, player.y) < e.radius + player.radius) {
-                if (player.invincibleTime <= 0) {
-                    player.hp -= 20; player.invincibleTime = player.maxInvincibleTime;
-                    createFloatingText(player.x, player.y, "HIT!", "#f00");
-                    if (player.hp <= 0) gameOver();
-                }
-            }
-            ctx.fillStyle = e.frozenTime > 0 ? '#aaf' : (e.slowFactor < 0.6 ? '#888' : e.color);
-            ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#000';
-            ctx.beginPath(); ctx.arc(e.x - e.radius/3, e.y - e.radius/3, e.radius/4, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(e.x + e.radius/3, e.y - e.radius/3, e.radius/4, 0, Math.PI*2); ctx.fill();
-            if (e.frozenTime > 0) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(e.x, e.y, e.radius + 2, 0, Math.PI*2); ctx.stroke(); }
+            function openPublishModal() { publishModal.style.display = 'flex'; }
+            function closePublishModal() { publishModal.style.display = 'none'; }
+
+            // 初始化
+            loadWishes();
         });
-
-        for (let i = entities.xpGems.length - 1; i >= 0; i--) {
-            let g = entities.xpGems[i];
-            const dist = getDistance(g.x, g.y, player.x, player.y);
-            if (dist < 200) { g.x += (player.x - g.x) * 0.35; g.y += (player.y - g.y) * 0.35; }
-            if (dist < player.radius + g.radius) { gainXp(g.val); entities.xpGems.splice(i, 1); } 
-            else { ctx.fillStyle = '#00f260'; ctx.shadowBlur = 5; ctx.shadowColor = '#00f260'; ctx.beginPath(); ctx.arc(g.x, g.y, g.radius, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0; }
-        }
-
-        for (let i = entities.particles.length - 1; i >= 0; i--) {
-            let p = entities.particles[i];
-            if (p.type === 'lightning' && p.target) {
-                ctx.strokeStyle = p.color; ctx.lineWidth = 2 + Math.random() * 2; ctx.shadowBlur = 10; ctx.shadowColor = '#ff0';
-                ctx.beginPath(); ctx.moveTo(p.x, p.y);
-                const midX = (p.x + p.endX) / 2 + randomRange(-10, 10); const midY = (p.y + p.endY) / 2 + randomRange(-10, 10);
-                ctx.lineTo(midX, midY); ctx.lineTo(p.endX, p.endY); ctx.stroke(); ctx.shadowBlur = 0;
-                p.life -= p.decay; if (p.life <= 0) entities.particles.splice(i, 1); continue;
-            }
-            if (p.type === 'ice_crystal') { p.life -= p.decay; if (p.life <= 0) entities.particles.splice(i, 1); else { ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size); ctx.globalAlpha = 1.0; } continue; }
-            p.x += p.vx; p.y += p.vy; p.life -= p.decay; p.vx *= 0.92; p.vy *= 0.92;
-            if (p.life <= 0) entities.particles.splice(i, 1); else { ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1.0; }
-        }
-
-        for (let i = entities.texts.length - 1; i >= 0; i--) {
-            let t = entities.texts[i]; t.y += t.vy; t.life -= 0.02;
-            if (t.life <= 0) entities.texts.splice(i, 1); else { ctx.globalAlpha = t.life; ctx.fillStyle = t.color; ctx.font = 'bold 15px Arial'; ctx.fillText(t.text, t.x, t.y); ctx.globalAlpha = 1.0; }
-        }
-    }
-    loop();
-</script>
+    </script>
 </body>
 </html>
-
-
