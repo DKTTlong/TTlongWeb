@@ -95,7 +95,7 @@
             freezeDuration: 60, level: 0 
         },
 
-        // --- 闪电弹 (独立配置) ---
+        // --- 闪电链 (独立配置) ---
         chain: { 
             active: false, 
             damage: 12, speed: 12, pierce: 99, spread: 0.15, count: 1, fireRate: 45,
@@ -148,11 +148,11 @@
         { id: 'frost_dmg', name: '冰霜伤害', icon: '❄️', desc: '冰霜弹伤害 +30%', rarity: 'common', condition: () => player.frost.active, apply: () => { player.frost.damage *= 1.3; } },
         { id: 'frost_time', name: '深度冷冻', icon: '🥶', desc: '冰冻持续时间 +50%', rarity: 'rare', condition: () => player.frost.active, apply: () => { player.frost.freezeDuration *= 1.5; } },
 
-        // 闪电弹专属
-        { id: 'chain_unlock', name: '解锁: 闪电链', icon: '⚡', desc: '获得闪电弹', rarity: 'rare', condition: () => !player.chain.active, apply: () => { player.chain.active = true; player.chain.level = 1; } },
-        { id: 'chain_count', name: '多重射击 - 闪电', icon: '⚡', desc: '闪电弹数量 +1', rarity: 'rare', condition: () => player.chain.active, apply: () => { player.chain.count++; } },
-        { id: 'chain_rate', name: '极速装填 - 闪电', icon: '⚡', desc: '闪电弹射速 +20%', rarity: 'common', condition: () => player.chain.active, apply: () => { player.chain.fireRate = Math.max(5, player.chain.fireRate * 0.8); } },
-        { id: 'chain_dmg', name: '闪电伤害', icon: '⚡', desc: '闪电弹伤害 +30%', rarity: 'common', condition: () => player.chain.active, apply: () => { player.chain.damage *= 1.3; } },
+        // 闪电链专属
+        { id: 'chain_unlock', name: '解锁: 闪电链', icon: '⚡', desc: '获得闪电链', rarity: 'rare', condition: () => !player.chain.active, apply: () => { player.chain.active = true; player.chain.level = 1; } },
+        { id: 'chain_count', name: '多重射击 - 闪电', icon: '⚡', desc: '闪电链数量 +1', rarity: 'rare', condition: () => player.chain.active, apply: () => { player.chain.count++; } },
+        { id: 'chain_rate', name: '极速装填 - 闪电', icon: '⚡', desc: '闪电链射速 +20%', rarity: 'common', condition: () => player.chain.active, apply: () => { player.chain.fireRate = Math.max(5, player.chain.fireRate * 0.8); } },
+        { id: 'chain_dmg', name: '闪电伤害', icon: '⚡', desc: '闪电链伤害 +30%', rarity: 'common', condition: () => player.chain.active, apply: () => { player.chain.damage *= 1.3; } },
         { id: 'chain_jump', name: '连锁反应', icon: '⚡', desc: '闪电跳跃次数 +1', rarity: 'rare', condition: () => player.chain.active, apply: () => { player.chain.jumpCount += 1; } },
 
         // 爆裂弹专属
