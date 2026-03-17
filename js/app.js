@@ -3,6 +3,7 @@ import * as Auth from './auth.js';
 import * as Data from './data.js';
 // ⬇️ 新增：导入 supabase 实例，用于 storage 操作
 import { supabase } from './data.js'; 
+import { QWEN_API_KEY, QWEN_MODEL, QWEN_API_URL } from './config.js';
 
 // 全局状态
 let currentUser = null;
@@ -52,6 +53,13 @@ const UI = {
     randomText: document.getElementById('randomText'),
     randomDate: document.getElementById('randomDate'),
     drawAgainBtn: document.getElementById('drawAgainBtn'),
+	
+	// ⬇️ 新增：AI 视图相关元素
+    aiView: document.getElementById('ai-view'),
+    chatHistory: document.getElementById('chatHistory'),
+    chatInput: document.getElementById('chatInput'),
+    sendBtn: document.getElementById('sendBtn'),
+    typingIndicator: document.getElementById('typingIndicator'), // 如果需要可以加一个 loading 元素
 };
 
 // 初始化
@@ -195,6 +203,18 @@ function bindEvents() {
 			drawRandomWish();
 		});
 	}
+	
+	// ⬇️ 新增：AI 发送按钮事件
+    if (UI.sendBtn) {
+        UI.sendBtn.addEventListener('click', handleSendChat);
+    }
+    
+    // 支持回车发送
+    if (UI.chatInput) {
+        UI.chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSendChat();
+        });
+    }
     console.log("🏁 所有事件绑定完成。");
 }
 
@@ -385,29 +405,144 @@ function updateUIForGuest() {
     if (UI.myAvatar) UI.myAvatar.innerHTML = '';
 }
 
-// 替换原有的 switchView 函数
+// ⬇️ 修改 switchView 函数，增加 AI 视图处理
 function switchView(tabName) {
     // 隐藏所有视图
     if (UI.homeView) UI.homeView.style.display = 'none';
     if (UI.myView) UI.myView.style.display = 'none';
     if (UI.discoverView) UI.discoverView.style.display = 'none';
+    if (UI.aiView) UI.aiView.style.display = 'none'; // 隐藏 AI 视图
+
+    // 移除所有 Tab 激活状态
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    // 激活当前 Tab (简单匹配)
+    const activeTab = document.querySelector(`.tab-item[data-tab="${tabName}"]`);
+    if(activeTab) activeTab.classList.add('active');
 
     if (tabName === 'my') {
         UI.myView.style.display = 'block';
         loadMyWishes();
     } else if (tabName === 'discover') {
-        // ⬇️ 新增：发现页逻辑
         UI.discoverView.style.display = 'block';
-        // 每次进入发现页，自动抽一次（如果还没抽过）
-        if (!window.hasDrawnToday) { 
-            drawRandomWish(); 
-        }
+        if (!window.hasDrawnToday) drawRandomWish();
+    } else if (tabName === 'ai') {
+        // ⬇️ 新增：AI 视图逻辑
+        UI.aiView.style.display = 'flex'; // 使用 flex 布局
+        // 滚动到底部
+        scrollToBottom();
     } else {
-        // 默认为首页 (home)
+        // home
         UI.homeView.style.display = 'block';
         loadHomeWishes();
     }
 }
+
+// ⬇️ 新增：滚动到底部辅助函数
+function scrollToBottom() {
+    if (UI.chatHistory) {
+        UI.chatHistory.scrollTop = UI.chatHistory.scrollHeight;
+    }
+}
+
+// ⬇️ 新增：添加消息到界面
+function appendMessage(role, text) {
+    if (!UI.chatHistory) return;
+    
+    const div = document.createElement('div');
+    div.className = `message ${role === 'user' ? 'user-message' : 'ai-message'}`;
+    div.textContent = text; // 防止 XSS
+    
+    UI.chatHistory.appendChild(div);
+    scrollToBottom();
+}
+
+// ⬇️ 新增：显示/隐藏加载状态
+function showTyping(show) {
+    // 这里简单处理：如果有 loading 元素可以显示，或者直接在最后加一个临时消息
+    // 为了简单，我们不在 DOM 里永久保留 loading，而是由用户感知延迟
+    // 如果需要更精细的控制，可以在 HTML 加一个 id="typingIndicator" 的元素
+}
+
+// ⬇️ 新增：调用通义千问 API
+async function callQwenAPI(messages) {
+    if (!QWEN_API_KEY || QWEN_API_KEY === 'YOUR_DASHSCOPE_API_KEY') {
+        throw new Error("⚠️ 未配置 API Key！请在 config.js 中填写 QWEN_API_KEY。");
+    }
+
+    const response = await fetch(QWEN_API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${QWEN_API_KEY}`
+        },
+        body: JSON.stringify({
+            model: QWEN_MODEL,
+            messages: messages,
+            temperature: 0.7,
+            max_tokens: 1000
+        })
+    });
+
+    if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || 'API 请求失败');
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+}
+
+// ⬇️ 新增：处理发送消息
+let chatContext = [
+    { role: "system", content: "你是一个温暖、鼓励人心的 AI 许愿助手。用户会和你分享他们的愿望或烦恼。请用积极、 supportive 的语气回复，适当给出建议，但不要说教。保持回复简洁（100字以内）。" }
+];
+
+async function handleSendChat() {
+    const input = UI.chatInput;
+    const text = input.value.trim();
+    if (!text) return;
+
+    // 1. 显示用户消息
+    appendMessage('user', text);
+    input.value = '';
+    
+    // 2. 添加到上下文
+    chatContext.push({ role: "user", content: text });
+
+    // 3. 禁用输入框防止重复发送
+    input.disabled = true;
+    UI.sendBtn.disabled = true;
+
+    // 4. 显示加载中提示 (可选：在界面上加一个 "AI 正在思考..." 的临时气泡)
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'message ai-message';
+    loadingDiv.style.opacity = '0.7';
+    loadingDiv.textContent = '✨ 正在连接宇宙大脑...';
+    UI.chatHistory.appendChild(loadingDiv);
+    scrollToBottom();
+
+    try {
+        // 5. 调用 API
+        const reply = await callQwenAPI(chatContext);
+        
+        // 6. 移除加载提示
+        UI.chatHistory.removeChild(loadingDiv);
+        
+        // 7. 显示 AI 回复
+        appendMessage('assistant', reply);
+        chatContext.push({ role: "assistant", content: reply });
+        
+    } catch (err) {
+        UI.chatHistory.removeChild(loadingDiv);
+        appendMessage('assistant', `❌ 出错了：${err.message}`);
+        console.error(err);
+    } finally {
+        input.disabled = false;
+        UI.sendBtn.disabled = false;
+        input.focus();
+    }
+}
+
 // ⬇️ 新增：随机抽取愿望函数
 // ⬇️ 新增：随机抽取愿望函数 (修复版：使用内存随机)
 async function drawRandomWish() {

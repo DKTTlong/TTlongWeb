@@ -365,3 +365,42 @@ textarea:focus {
     box-shadow: 0 0 30px rgba(255, 154, 158, 0.5);
     border-color: var(--accent-color);
 }
+/* AI 聊天视图特定样式 */
+#ai-view {
+    display: none; /* 默认隐藏，JS 控制 */
+    height: calc(100vh - 160px); /* 适配高度 */
+}
+
+.message {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 15px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease;
+}
+
+.user-message {
+    align-self: flex-end;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border-radius: 15px 15px 0 15px;
+    margin-left: auto;
+}
+
+.ai-message {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-radius: 15px 15px 15px 0;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.typing-indicator {
+    font-style: italic;
+    color: #aaa;
+    font-size: 0.8rem;
+    margin-left: 10px;
+    display: none;
+}
