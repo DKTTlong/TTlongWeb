@@ -7,7 +7,8 @@ import { QWEN_API_KEY, QWEN_MODEL, QWEN_API_URL } from './config.js';
 
 // 全局状态
 let currentUser = null;
-let isPasswordMode = false;
+// 'login' 或 'signup'
+let currentAuthMode = 'login'; 
 
 // DOM 元素缓存
 const UI = {
@@ -104,6 +105,7 @@ async function initAuth() {
                 updateUIForLoggedIn(currentUser);
                 loadHomeWishes(); // 刷新数据
                 closeModal(UI.authModal);
+				switchView("home")
                 showMsg("登录成功！", "success");
             } else if (event === 'SIGNED_OUT') {
                 currentUser = null;
@@ -161,8 +163,61 @@ function bindEvents() {
         });
     });
 
+	// --- 切换 登录/注册 模式 ---
+    const toggleLink = document.getElementById('toggleAuthModeLink');
+    const modalTitle = document.getElementById('authModalTitle');
+    const actionBtn = document.getElementById('authActionBtn');
+    const switchText = document.getElementById('switchAuthText');
+    
+    if (toggleLink) {
+        toggleLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            // 切换状态
+            currentAuthMode = currentAuthMode === 'login' ? 'signup' : 'login';
+            
+            // 更新 UI
+            if (currentAuthMode === 'signup') {
+                modalTitle.textContent = '注册新账号';
+                actionBtn.textContent = '立即注册';
+                switchText.textContent = '已有账号？';
+                toggleLink.textContent = '直接登录';
+                // 清空之前的错误信息
+                showMsg("请填写邮箱和密码进行注册", "normal");
+            } else {
+                modalTitle.textContent = '登录';
+                actionBtn.textContent = '登录';
+                switchText.textContent = '还没有账号？';
+                toggleLink.textContent = '立即注册';
+                showMsg("欢迎回来，请输入密码", "normal");
+            }
+            // 清空密码框以防泄露
+            if(UI.passwordInput) UI.passwordInput.value = '';
+            if(UI.authMessage) UI.authMessage.textContent = '';
+        });
+    }
+
+    // --- 魔法链接切换 (可选) ---
+    const magicLinkBtn = document.getElementById('useMagicLinkBtn');
+    if(magicLinkBtn) {
+        magicLinkBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // 切换到魔法链接模式 (这里简单处理：隐藏密码框，改变按钮行为)
+            // 为了简化，我们暂时让魔法链接作为一个独立流程，或者你可以扩展 currentAuthMode 为 'magic'
+            // 这里演示：点击后隐藏密码框，按钮变为发送链接
+            if(UI.passwordInput) UI.passwordInput.style.display = 'none';
+            if(actionBtn) actionBtn.textContent = '发送魔法链接';
+            if(toggleLink) toggleLink.style.display = 'none'; // 隐藏切换链接
+            if(modalTitle) modalTitle.textContent = '免密登录';
+            if(switchText) switchText.parentElement.style.display = 'none'; // 隐藏底部提示
+            
+            // 临时标记当前是魔法链接模式
+            currentAuthMode = 'magic'; 
+            
+            showMsg("输入邮箱，我们将发送登录链接给您", "normal");
+        });
+    }
+	
     // --- 其他原有逻辑 ---
-    UI.toggleAuthModeBtn?.addEventListener('click', toggleAuthMode);
     UI.authActionBtn?.addEventListener('click', handleAuthSubmit);
     UI.logoutBtn?.addEventListener('click', handleLogout);
     UI.addWishBtn?.addEventListener('click', handlePublishSubmit);
@@ -620,25 +675,7 @@ async function drawRandomWish() {
     }
 }
 
-
-
-
-// --- 业务逻辑处理 ---
-
-function toggleAuthMode() {
-    isPasswordMode = !isPasswordMode;
-    if (isPasswordMode) {
-        UI.passwordInput.style.display = 'block';
-        UI.authActionBtn.textContent = '登录 / 注册';
-        UI.toggleAuthModeBtn.textContent = '切换回魔法链接';
-    } else {
-        UI.passwordInput.style.display = 'none';
-        UI.authActionBtn.textContent = '发送魔法链接';
-        UI.toggleAuthModeBtn.textContent = '切换到密码登录';
-    }
-}
-
-// ✅ 修复的核心函数：处理登录/注册提交
+// ✅ 修复版：分离登录和注册逻辑
 async function handleAuthSubmit() {
     const email = UI.emailInput.value.trim();
     const password = UI.passwordInput.value;
@@ -652,43 +689,73 @@ async function handleAuthSubmit() {
     showMsg("", "normal");
 
     try {
-        if (isPasswordMode && password) {
-            // --- 密码模式逻辑 (已修复) ---
-            console.log("尝试密码登录/注册...", email);
-            
-            try {
-                // 1. 先尝试登录
-                await Auth.signInWithPassword(email, password);
-                showMsg("登录成功！", "success");
-                // 登录成功后，initAuth 中的监听器会自动处理 UI 更新和关闭弹窗
-            } catch (e) {
-                // 2. 如果登录失败且提示用户不存在，则尝试注册
-                if (e.message.includes('Invalid') || e.message.includes('User not found') || e.message.includes('credentials')) {
-                    showMsg("未找到账户，正在自动注册...", "normal");
-                    await Auth.signUpWithPassword(email, password);
-                    showMsg("注册成功！请检查邮箱验证。", "success");
-                } else {
-                    // 其他错误直接抛出
-                    throw e;
-                }
-            }
-            // --- 密码模式逻辑结束 ---
-            
-        } else {
-            // --- 魔法链接模式逻辑 ---
-            console.log("发送魔法链接...", email);
+        // --- 模式 1: 魔法链接 (如果触发了) ---
+        if (currentAuthMode === 'magic') {
+            console.log("🔗 发送魔法链接...", email);
             await Auth.sendMagicLink(email);
-            showMsg("✨ 魔法链接已发送！请查收邮箱。", "success");
+            showMsg("✨ 魔法链接已发送！请查收邮箱 (包括垃圾邮件箱)。", "success");
+            return;
         }
+
+        // --- 模式 2: 密码登录/注册 ---
+        if (!password) {
+            showMsg("请输入密码", "error");
+            setLoading(UI.authActionBtn, false);
+            return;
+        }
+
+        if (currentAuthMode === 'login') {
+            // 🔒 执行登录
+            console.log("🔐 正在登录...", email);
+            const { data, error } = await Auth.signInWithPassword(email, password);
+            
+            if (error) throw error;
+            
+            showMsg("登录成功！正在跳转...", "success");
+            // authStateChange 监听器会自动处理后续 UI 更新和关闭弹窗
+            
+        } else if (currentAuthMode === 'signup') {
+            // 📝 执行注册
+            console.log("📝 正在注册...", email);
+            
+            if (password.length < 6) {
+                showMsg("密码长度至少需要 6 位", "error");
+                setLoading(UI.authActionBtn, false);
+                return;
+            }
+
+            const { data, error } = await Auth.signUpWithPassword(email, password);
+            
+            if (error) throw error;
+            
+            showMsg("✅ 注册成功！请检查邮箱验证链接。", "success");
+            // 注意：Supabase 默认需要邮箱验证，验证前可能无法登录
+            setTimeout(() => {
+                closeModal(UI.authModal);
+            }, 1500);
+        }
+
     } catch (err) {
-        console.error("认证错误:", err);
+        console.error("❌ 认证错误:", err);
         
-        // 针对频率限制的友好提示
-        if (err.message.includes('rate limit') || err.message.includes('Email rate limit')) {
-            showMsg("⚠️ 发送太频繁啦！\n建议：点击'切换到密码登录'直接测试，或 1 小时后再试。", "error");
-        } else {
-            showMsg(err.message || "操作失败", "error");
+        let friendlyMsg = err.message;
+        
+        // 友好提示处理
+        if (err.message.includes("Invalid login credentials")) {
+            friendlyMsg = "邮箱或密码错误，请重试。";
+        } else if (err.message.includes("User already registered")) {
+            friendlyMsg = "该邮箱已注册，请直接登录！";
+            // 自动切换到登录模式体验更好
+            currentAuthMode = 'login';
+            // 触发一次 UI 更新 (模拟点击)
+            document.getElementById('toggleAuthModeLink')?.click(); 
+        } else if (err.message.includes("Email not confirmed")) {
+            friendlyMsg = "邮箱尚未验证，请检查邮件或重新发送验证信。";
+        } else if (err.message.includes("rate limit")) {
+            friendlyMsg = "操作太频繁，请稍后再试。";
         }
+        
+        showMsg(friendlyMsg, "error");
     } finally {
         setLoading(UI.authActionBtn, false);
     }

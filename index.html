@@ -167,15 +167,32 @@
         </div>
     </div>
 
+     <!-- 登录/注册 模态框 -->
     <div class="modal" id="authModal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h3>登录 / 注册</h3>
-            <input type="email" id="emailInput" class="modal-input" placeholder="邮箱">
-            <input type="password" id="passwordInput" class="modal-input" placeholder="密码" style="display:none;">
-            <button class="modal-btn" id="authActionBtn">发送魔法链接</button>
-            <button class="modal-btn secondary" id="toggleAuthModeBtn">切换模式</button>
-            <p id="authMessage" style="font-size:12px; margin-top:10px; color:#666;"></p>
+            
+            <!-- 动态标题 -->
+            <h3 id="authModalTitle">登录</h3>
+            
+            <input type="email" id="emailInput" class="modal-input" placeholder="邮箱地址">
+            <input type="password" id="passwordInput" class="modal-input" placeholder="密码">
+            
+            <!-- 主操作按钮 -->
+            <button class="modal-btn" id="authActionBtn">登录</button>
+            
+            <!-- 切换模式提示 -->
+            <p style="margin-top: 15px; font-size: 0.9rem; text-align: center; color: #ccc;">
+                <span id="switchAuthText">还没有账号？</span>
+                <a href="#" id="toggleAuthModeLink" style="color: var(--accent-color); text-decoration: none; font-weight: bold; margin-left: 5px;">立即注册</a>
+            </p>
+            
+            <!-- 魔法链接选项 (可选，保留作为备选) -->
+            <div style="margin-top: 15px; text-align: center;">
+                <a href="#" id="useMagicLinkBtn" style="font-size: 0.8rem; color: #888; text-decoration: underline;">使用魔法链接免密登录</a>
+            </div>
+
+            <p id="authMessage" style="font-size:12px; margin-top:10px; color:#666; text-align: center;"></p>
         </div>
     </div>
 
